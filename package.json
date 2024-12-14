@@ -21,21 +21,21 @@
 	"author": "Your Name",
 	"license": "MIT",
 	"dependencies": {
-		"@codemirror/language": "^6.0.0",
-		"@codemirror/state": "^6.0.0",
-		"@codemirror/view": "^6.0.0",
+		"@codemirror/language": "^6.10.6",
+		"@codemirror/state": "^6.5.0",
+		"@codemirror/view": "^6.35.3",
 		"obsidian": "latest",
 		"ofetch": "^1.4.1"
 	},
 	"devDependencies": {
 		"@testing-library/dom": "^10.4.0",
-		"@types/node": "^22.10.1",
+		"@types/node": "^22.10.2",
 		"@types/sinon": "^17.0.3",
-		"@vitest/ui": "^2.1.6",
+		"@vitest/ui": "^2.1.8",
 		"jsdom": "^25.0.1",
-		"msw": "^2.6.6",
+		"msw": "^2.6.8",
 		"sinon": "^19.0.2",
-		"vite": "^4.4.9",
-		"vitest": "^2.1.6"
+		"vite": "^4.5.5",
+		"vitest": "^2.1.8"
 	}
 }

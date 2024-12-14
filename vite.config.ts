@@ -1,43 +1,69 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
+import * as path from 'path';
+import * as fs from 'fs';
+import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Trouver automatiquement tous les plugins
+const plugins = fs.readdirSync(__dirname)
+   .filter(dir => dir.startsWith('obsidian-') || dir.startsWith('@obsidian-'))
+   .filter(dir => {
+      const mainTs = path.resolve(__dirname, dir, 'src/main.ts');
+      const mainJs = path.resolve(__dirname, dir, 'src/main.js');
+      if (fs.existsSync(mainTs) && fs.statSync(mainTs).isFile()) {
+         return true;
+      }
+      if (fs.existsSync(mainJs) && fs.statSync(mainJs).isFile()) {
+         return true;
+      }
+      return false;
+   });
+
+// Créer les entrées pour chaque plugin
+const inputs = Object.fromEntries(
+   plugins.map(plugin => [
+      plugin,
+      path.resolve(__dirname, plugin, 'src/main.ts')
+   ])
+);
 
 export default defineConfig({
    build: {
-      lib: {
-         entry: resolve(__dirname, 'src/main.ts'),
-         name: 'ObsidianBoilerplate',
-         fileName: 'main',
-         formats: ['cjs']
+      chunkSizeWarningLimit: 1000,
+      watch: {
+         include: ['obsidian-*/src/**', '@obsidian-*/src/**'],
       },
-      sourcemap: 'inline',
-      cssCodeSplit: false,
       rollupOptions: {
+         input: inputs,
          external: [
-            'obsidian', 
-            '@codemirror/view', 
-            '@codemirror/state', 
-            '@codemirror/language',
-            'events',
-            'child_process',
-            'fs',
-            'https',
-            'os',
-            'stream'
+               'obsidian',
+               '@codemirror/view',
+               '@codemirror/state',
+               '@codemirror/language',
+               'events',
+               'child_process',
+               'fs',
+               'https',
+               'os',
+               'stream',
+               'fast-xml-parser',
+               'node-fetch',
+               'cheerio',
+               'axios'
          ],
          output: {
-            entryFileNames: 'main.js',
-            format: 'cjs',
-            exports: 'default',
-            globals: {
-               'obsidian': 'obsidian',
-               '@codemirror/view': 'CodeMirror.view',
-               '@codemirror/state': 'CodeMirror.state',
-               '@codemirror/language': 'CodeMirror.language'
-            }
+               entryFileNames: (chunkInfo) => {
+                  const pluginName = chunkInfo.name;
+                  return `${pluginName}/main.js`;
+               },
+               format: 'cjs',
+               globals: {
+                  'obsidian': 'obsidian',
+                  '@codemirror/view': 'CodeMirror.view',
+                  '@codemirror/state': 'CodeMirror.state',
+                  '@codemirror/language': 'CodeMirror.language'
+               }
          }
       },
       outDir: '.',

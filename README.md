@@ -1,167 +1,104 @@
-Voici les étapes que nous avons effectuées pour corriger la gestion des événements :
-Définition claire des types d'événements :
-Création d'une interface IEventMap avec tous les événements possibles
-Spécification des paramètres et retours pour chaque type d'événement
-Support des retours asynchrones (Promise)
-Mise en place de l'EventBus :
-Implémentation du pattern Singleton
-Gestion des souscriptions/désinscriptions aux événements
-Support du debugging des événements
-Gestion des erreurs dans les handlers
-Dans les services :
-Définition des handlers comme propriétés de classe
-Utilisation de fonctions fléchées asynchrones
-Conservation des références aux handlers pour le nettoyage
-Initialisation et nettoyage corrects des écouteurs d'événements
-Bonnes pratiques :
-Typage strict des événements
-Gestion propre des désabonnements
-Support de l'asynchrone
-Facilité de maintenance et de débogage
-Ces étapes peuvent servir de guide pour implémenter un système d'événements robuste dans d'autres plugins Obsidian.
+# Obsidian Plugins Development Environment
 
+Un environnement de développement moderne pour créer et maintenir plusieurs plugins Obsidian avec du code partagé.
 
-# Obsidian Plugin Boilerplate
+## 🌟 Caractéristiques
 
-A modern and robust template for developing Obsidian plugins with TypeScript.
+- 🔄 Build simultané de plusieurs plugins
+- 📦 Configuration Vite optimisée
+- 🧪 Tests unitaires centralisés
+- 🛠 Code partagé entre plugins
+- 🔍 Hot reload automatique
 
-## 🌟 Features
+## 🚀 Démarrage
 
-- ⚡ Modern service-based architecture
-- 🧪 Complete unit testing with Vitest
-- 🔄 Event Bus for component communication
-- 🛠 Centralized error handling
-- 🌐 Built-in i18n support
-- 📦 Optimized TypeScript configuration
-
-## 🚀 Getting Started
-
-1. **Clone the template**
+1. **Cloner le repository**
 ```bash
-git clone https://github.com/your-repo/obsidian-plugin-boilerplate.git my-plugin
-cd my-plugin
+git clone https://github.com/dianedef/obsidian-development.git
+cd obsidian-development
 ```
 
-2. **Install dependencies**
+2. **Installer les dépendances**
 ```bash
 npm install
 ```
 
-3. **Configure your plugin**
-- Modify `manifest.json` with your information
-- Adapt `package.json` to your needs
-- Configure environment variables if needed
+3. **Structure des plugins**
+Chaque plugin doit suivre cette structure :
+```
+obsidian-my-plugin/
+├── src/
+│   ├── main.ts      # Point d'entrée obligatoire
+│   └── ...          # Autres fichiers du plugin
+├── manifest.json    # Manifest Obsidian
+└── styles.css       # Styles optionnels
+```
 
-4. **Development**
+## 📁 Architecture
+
+```
+.
+├── obsidian---plugin-boilerplate/  # Template de base pour nouveaux plugins
+├── obsidian-plugin1/               # Plugin 1
+├── obsidian-plugin2/               # Plugin 2
+├── tests/                          # Tests partagés
+│   ├── __mocks__/                 # Mocks globaux
+│   └── services/                  # Tests des services
+└── vite.config.ts                 # Configuration build
+```
+
+## 🛠 Développement
+
+1. **Créer un nouveau plugin**
+- Copier le dossier `obsidian---plugin-boilerplate`
+- Renommer en `obsidian-my-plugin`
+- Modifier `manifest.json` selon vos besoins
+
+2. **Développement**
 ```bash
 npm run dev
 ```
+Le build se fait automatiquement pour tous les plugins ayant un fichier `src/main.ts` ou `src/main.js`. Il génère un fichier `main.js` à la racine du dossier de chaque plugin et Obsidian le charge automatiquement.
 
-## 📁 Project Structure
-
-```
-src/
-├── core/              # Business logic
-│   ├── services/     # Reusable services
-│   │   ├── EventBusService.ts
-│   │   └── ErrorService.ts
-│   └── types/       # Types and interfaces
-├── ui/              # User interface components
-└── utils/           # Utilities
-
-tests/               # Tests
-├── __mocks__/      # External module mocks
-├── mocks/          # Custom mocks
-└── services/       # Service tests
+3. **Build production**
+```bash
+npm run build
 ```
 
-## 🛠 Available Services
+## 🔄 Comment ça marche
 
-### EventBusService
-Event-based communication service between components.
+- Vite détecte automatiquement tous les dossiers commençant par `obsidian-`
+- Chaque plugin est buildé dans son propre dossier
+- Le hot reload surveille les changements dans tous les plugins
+- Les tests sont centralisés mais peuvent être spécifiques à chaque plugin
 
-```typescript
-// Usage example
-const eventBus = EventBusService.getInstance();
-eventBus.on(EventName.SETTINGS_UPDATED, (settings) => {
-    // Handle settings update
-});
-```
-
-### ErrorService
-Centralized error handling with i18n support.
-
-```typescript
-// Usage example
-const errorService = ErrorService.getInstance();
-errorService.handleError({
-    type: ErrorType.CONFIG,
-    message: 'errors.configMissing'
-});
-```
-
-## 🧪 Tests
-
-The project uses Vitest with a complete setup:
-
-- MSW for HTTP request mocking
-- Mocks for Obsidian services
-- Unit and integration tests
+## 📚 Tests
 
 ```bash
-# Run tests
+# Lancer tous les tests
 npm test
 
-# Run tests with coverage
+# Lancer les tests avec UI
+npm run test:ui
+
+# Couverture de code
 npm run test:coverage
 ```
 
-## 📝 Code Conventions
+## 🤝 Contribution
 
-- **TypeScript strict mode** enabled
-- **ESLint** with modern configuration
-- **Prettier** for formatting
-- Conventional commits
-
-## 🔧 Customization
-
-1. **Add a new service**
-```typescript
-export class MyService {
-    private static instance: MyService;
-    
-    static getInstance(): MyService {
-        if (!MyService.instance) {
-            MyService.instance = new MyService();
-        }
-        return MyService.instance;
-    }
-}
-```
-
-2. **Add a new event type**
-```typescript
-// src/core/types/events.ts
-export enum EventName {
-    MY_EVENT = 'my:event'
-}
-```
-
-## 📚 Documentation
-
-- [Contributing Guide](./docs/contributing.md)
-- [Testing Guide](./docs/testing.md)
-- [Architecture](./docs/architecture.md)
-
-## 🤝 Contributing
-
-Contributions are welcome! See the [contributing guide](./docs/contributing.md).
+1. Créez votre plugin dans un nouveau dossier `obsidian-my-plugin`
+2. Assurez-vous d'avoir un `src/main.ts` ou `src/main.js`
+3. Le build se fera automatiquement
 
 ## 📄 License
 
-MIT - see [LICENSE](./LICENSE) for details.
+MIT - voir [LICENSE](./LICENSE)
 
-## 🙏 Acknowledgments
+## 🔧 Configuration avancée
 
-- [Obsidian Plugin API](https://github.com/obsidianmd/obsidian-api)
-- [Obsidian Sample Plugin](https://github.com/obsidianmd/obsidian-sample-plugin)
+Le fichier `vite.config.ts` peut être personnalisé pour :
+- Ajouter des dépendances externes
+- Modifier les chemins de build
+- Configurer des alias
+- Ajuster les options de build
