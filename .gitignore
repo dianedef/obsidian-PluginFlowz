@@ -1,0 +1,12 @@
+# Build
+/main.js
+styles.css
+data.json
+video.*.js
+
+# Dependencies
+node_modules/
+
+# Ignore all plugin folders except boilerplate
+obsidian-*/
+!obsidian---plugin-boilerplate/

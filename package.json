@@ -1,0 +1,41 @@
+{
+	"name": "obsidian-boilerplate",
+	"version": "1.0.0",
+	"description": "A modern and robust template for developing Obsidian plugins with TypeScript",
+	"main": "main.js",
+	"scripts": {
+		"dev": "vite build --watch",
+		"build": "vite build",
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"test": "vitest",
+		"test:ui": "vitest --ui",
+		"test:coverage": "vitest run --coverage"
+	},
+	"keywords": [
+		"obsidian",
+		"plugin",
+		"typescript",
+		"template",
+		"boilerplate"
+	],
+	"author": "Your Name",
+	"license": "MIT",
+	"dependencies": {
+		"@codemirror/language": "^6.0.0",
+		"@codemirror/state": "^6.0.0",
+		"@codemirror/view": "^6.0.0",
+		"obsidian": "latest",
+		"ofetch": "^1.4.1"
+	},
+	"devDependencies": {
+		"@testing-library/dom": "^10.4.0",
+		"@types/node": "^22.10.1",
+		"@types/sinon": "^17.0.3",
+		"@vitest/ui": "^2.1.6",
+		"jsdom": "^25.0.1",
+		"msw": "^2.6.6",
+		"sinon": "^19.0.2",
+		"vite": "^4.4.9",
+		"vitest": "^2.1.6"
+	}
+}
