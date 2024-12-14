@@ -9,13 +9,17 @@
       "importHelpers": true,
       "isolatedModules": true,
       "strictNullChecks": true,
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
       "lib": [
          "DOM",
          "ES5",
          "ES6",
          "ES7",
       ],
-      "types": ["node"],
+      "types": [
+         "node",
+      ],
       "paths": {
          "@/*": ["src/*"],
          "@tests/*": ["tests/*"]
@@ -23,6 +27,7 @@
    },
    "include": [
       "src/**/*.ts",
-      "tests/**/*.ts"
+      "tests/**/*.ts",
+      "tests/__mocks__/**/*.ts"
    ]
 } 

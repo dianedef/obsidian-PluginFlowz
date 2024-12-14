@@ -11,11 +11,17 @@ const plugins = fs.readdirSync(__dirname)
    .filter(dir => {
       const mainTs = path.resolve(__dirname, dir, 'src/main.ts');
       const mainJs = path.resolve(__dirname, dir, 'src/main.js');
-      if (fs.existsSync(mainTs) && fs.statSync(mainTs).isFile()) {
-         return true;
-      }
-      if (fs.existsSync(mainJs) && fs.statSync(mainJs).isFile()) {
-         return true;
+      try {
+         if (fs.existsSync(mainTs) && fs.statSync(mainTs).isFile()) {
+            console.log(`Found plugin: ${dir}`);
+            return true;
+         }
+         if (fs.existsSync(mainJs) && fs.statSync(mainJs).isFile()) {
+            console.log(`Found plugin: ${dir}`);
+            return true;
+         }
+      } catch (error) {
+         console.warn(`Skipping invalid plugin: ${dir}`);
       }
       return false;
    });
@@ -28,55 +34,43 @@ const inputs = Object.fromEntries(
    ])
 );
 
+console.log(`Building ${plugins.length} plugins...`);
+
 export default defineConfig({
    build: {
-      chunkSizeWarningLimit: 1000,
-      watch: {
-         include: ['obsidian-*/src/**', '@obsidian-*/src/**'],
+      lib: {
+         entry: inputs,
+         name: 'ObsidianPlugins',
+         formats: ['cjs']
       },
+      sourcemap: 'inline',
+      cssCodeSplit: false,
       rollupOptions: {
-         input: inputs,
          external: [
-               'obsidian',
-               '@codemirror/view',
-               '@codemirror/state',
-               '@codemirror/language',
-               'events',
-               'child_process',
-               'fs',
-               'https',
-               'os',
-               'stream',
-               'fast-xml-parser',
-               'node-fetch',
-               'cheerio',
-               'axios'
+            'obsidian',
+            '@codemirror/view',
+            '@codemirror/state',
+            '@codemirror/language',
+            'events',
+            'child_process',
+            'fs',
+            'https',
+            'os',
+            'stream'
          ],
          output: {
-               entryFileNames: (chunkInfo) => {
-                  const pluginName = chunkInfo.name;
-                  return `${pluginName}/main.js`;
-               },
-               format: 'cjs',
-               globals: {
-                  'obsidian': 'obsidian',
-                  '@codemirror/view': 'CodeMirror.view',
-                  '@codemirror/state': 'CodeMirror.state',
-                  '@codemirror/language': 'CodeMirror.language'
-               }
+            entryFileNames: '[name]/main.js',
+            format: 'cjs',
+            exports: 'default',
+            globals: {
+               'obsidian': 'obsidian',
+               '@codemirror/view': 'CodeMirror.view',
+               '@codemirror/state': 'CodeMirror.state',
+               '@codemirror/language': 'CodeMirror.language'
+            }
          }
       },
       outDir: '.',
       emptyOutDir: false
-   },
-   optimizeDeps: {
-      include: ['video.js', 'videojs-youtube'],
-      exclude: ['yt-dlp-wrap']
-   },
-   resolve: {
-      alias: {
-         'video.js': 'video.js/dist/video.js'
-      },
-      extensions: ['.ts', '.js']
    }
 }); 

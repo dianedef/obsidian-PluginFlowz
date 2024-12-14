@@ -54,6 +54,21 @@ obsidian-my-plugin/
 - Renommer en `obsidian-my-plugin`
 - Modifier `manifest.json` selon vos besoins
 
+> ⚠️ **Important**: Le fichier main.ts doit exporter une classe par défaut qui étend `Plugin`:
+```typescript
+import { Plugin } from 'obsidian';
+
+export default class MyPlugin extends Plugin {
+    async onload() {
+        // Plugin initialization
+    }
+
+    onunload() {
+        // Cleanup
+    }
+}
+```
+
 2. **Développement**
 ```bash
 npm run dev
@@ -102,3 +117,9 @@ Le fichier `vite.config.ts` peut être personnalisé pour :
 - Modifier les chemins de build
 - Configurer des alias
 - Ajuster les options de build
+
+> ⚠️ **Important**: Les dépendances externes doivent être installées localement dans chaque plugin qui les utilise.
+```bash
+cd obsidian-my-plugin
+npm install ma-dependance
+```
