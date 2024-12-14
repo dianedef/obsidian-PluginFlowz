@@ -8,8 +8,8 @@
 	"description": "A modern and robust template for developing Obsidian plugins with TypeScript",
 	"main": "main.js",
 	"scripts": {
-		"dev": "vite build --watch",
-		"build": "vite build",
+		"dev": "node esbuild.config.mjs --watch",
+		"build": "node esbuild.config.mjs",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"test": "vitest --config vitest.config.ts",
 		"test:ui": "vitest --ui",
@@ -47,6 +47,7 @@
 		"sinon": "^19.0.2",
 		"typescript": "4.9.5",
 		"vite": "^4.5.5",
-		"vitest": "^0.34.0"
+		"vitest": "^0.34.0",
+		"esbuild": "^0.19.11"
 	}
 }
