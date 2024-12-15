@@ -1,0 +1,13 @@
+{
+	"id": "boilerplateflowz",
+	"name": "Boilerplate",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Boilerplate",
+	"author": "Votre Nom",
+	"authorUrl": "https://votre-site.com",
+	"isDesktopOnly": false,
+	"js": "main.js",
+	"dependencies": {
+	}
+}
