@@ -6,6 +6,7 @@ import { Translations } from './Translations';
 import { Hotkeys } from './Hotkeys';
 import { Dashboard } from './Dashboard';
 import { ViewMode } from './ViewMode';
+import { PluginManager } from './PluginManager';
 
 export default class PluginFlowz extends Plugin {
    private viewMode!: ViewMode;
@@ -18,7 +19,7 @@ export default class PluginFlowz extends Plugin {
       this.registerView(
          "pluginflowz-view",
          (leaf) => {
-            const view = new Dashboard(leaf, this.settings, this.translations);
+            const view = new Dashboard(leaf, this.settings, this.translations, this);
             this.dashboard = view;
             return view;
          }
@@ -112,6 +113,10 @@ export default class PluginFlowz extends Plugin {
       });
 
       registerStyles();
+
+      // Synchroniser les plugins au démarrage
+      const pluginManager = new PluginManager(this);
+      await pluginManager.syncPlugins();
    }
 
    private async loadApp(): Promise<void> {

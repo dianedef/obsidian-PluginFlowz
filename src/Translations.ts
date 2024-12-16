@@ -7,6 +7,12 @@ export type TranslationKey =
    | 'dashboard.viewModeTab'
    | 'dashboard.viewModeSidebar'
    | 'dashboard.viewModePopup'
+   | 'dashboard.noPlugins'
+   | 'dashboard.installedPlugins'
+   | 'dashboard.switchToList'
+   | 'dashboard.switchToCards'
+   | 'dashboard.listView'
+   | 'dashboard.cardView'
    // Notices
    | 'notices.saved'
    | 'notices.error'
@@ -94,6 +100,12 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.viewModeTab': 'Tab',
       'dashboard.viewModeSidebar': 'Sidebar',
       'dashboard.viewModePopup': 'Popup',
+      'dashboard.noPlugins': 'No plugins installed yet. Install some plugins to manage them here.',
+      'dashboard.installedPlugins': 'Installed Plugins',
+      'dashboard.switchToList': 'Switch to list view',
+      'dashboard.switchToCards': 'Switch to cards view',
+      'dashboard.listView': 'List View',
+      'dashboard.cardView': 'Card View',
       // Notices
       'notices.saved': '✅ Settings saved',
       'notices.error': '❌ Error: {message}',
@@ -184,6 +196,12 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'dashboard.viewModeTab': 'Onglet',
       'dashboard.viewModeSidebar': 'Barre latérale',
       'dashboard.viewModePopup': 'Fenêtre contextuelle',
+      'dashboard.noPlugins': 'Aucun plugin installé pour le moment. Installez des plugins pour les gérer ici.',
+      'dashboard.installedPlugins': 'Plugins Installés',
+      'dashboard.switchToList': 'Passer en vue liste',
+      'dashboard.switchToCards': 'Passer en vue cartes',
+      'dashboard.listView': 'Vue Liste',
+      'dashboard.cardView': 'Vue Cartes',
       // Notices
       'notices.saved': '✅ Paramètres sauvegardés',
       'notices.error': '❌ Erreur: {message}',

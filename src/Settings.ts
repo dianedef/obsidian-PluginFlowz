@@ -10,6 +10,7 @@ export interface DefaultSettings {
    enableAutoUpdate: boolean;
    notesFolder: string;
    template: string;
+   defaultViewMode: 'list' | 'cards';
 }
 
 export const DEFAULT_SETTINGS: DefaultSettings = {
@@ -18,7 +19,8 @@ export const DEFAULT_SETTINGS: DefaultSettings = {
    activeLeafId: null,
    enableAutoUpdate: true,
    notesFolder: 'pluginNotes',
-   template: '# {{name}}\n\n{{description}}\n\n{{url}}'
+   template: '# {{name}}\n\n{{description}}\n\n{{url}}',
+   defaultViewMode: 'list'
 };
 
 export class Settings {

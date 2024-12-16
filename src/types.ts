@@ -28,4 +28,14 @@ export interface IPluginData {
     plugins: IPlugin[];
     groups: TPluginGroup[];
     defaultViewMode: TViewMode;
+}
+
+export interface DefaultSettings {
+   language: string;
+   currentMode: TViewMode;
+   activeLeafId: string | null;
+   enableAutoUpdate: boolean;
+   notesFolder: string;
+   template: string;
+   defaultViewMode: 'list' | 'cards';
 } 
