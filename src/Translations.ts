@@ -14,6 +14,7 @@ export type TranslationKey =
    | 'notices.featureEnabled'
    | 'notices.featureDisabled'
    // Commands
+   | 'commands.openDashboard'
    // Errors
    // Settings
    | 'settings.defaultViewMode'
@@ -39,6 +40,7 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'notices.featureEnabled': '✅ Feature enabled',
       'notices.featureDisabled': '❌ Feature disabled',
       // Commands
+      'commands.openDashboard': 'Open Dashboard',
       // Errors
       // Settings
       'settings.defaultViewMode': 'Default View Mode',
@@ -63,6 +65,7 @@ export const translations: { [lang: string]: Record<TranslationKey, string> } = 
       'notices.featureEnabled': '✅ Fonctionnalité activée',
       'notices.featureDisabled': '❌ Fonctionnalité désactivée',
       // Commands
+      'commands.openDashboard': 'Ouvrir le tableau de bord',
       // Errors
       // Settings
       'settings.defaultViewMode': 'Mode d\'affichage par défaut',

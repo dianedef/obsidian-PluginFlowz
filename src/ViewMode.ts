@@ -1,15 +1,18 @@
-import { Plugin, WorkspaceLeaf } from 'obsidian';
+import { Plugin, WorkspaceLeaf, Modal } from 'obsidian';
 import { TViewMode } from './types';
 import { Settings } from './Settings';
 import { Dashboard } from './Dashboard';
+import { Translations } from './Translations';
 
 export class ViewMode {
    private currentView: Dashboard | null = null;
    private currentMode: TViewMode | null = null;
    private activeLeaf: WorkspaceLeaf | null = null;
    private leafId: string | null = null;
+   private translations: Translations;
 
    constructor(private plugin: Plugin) {
+      this.translations = new Translations();
       // Initialiser le mode depuis les settings
       Settings.loadSettings().then(settings => {
          this.currentMode = settings.currentMode;
@@ -49,9 +52,16 @@ export class ViewMode {
             leaf = workspace.getRightLeaf(false) ?? workspace.getLeaf('split');
             break;
          case 'popup':
-            const activeLeaf = workspace.getMostRecentLeaf() ?? workspace.getLeaf('split');
-            leaf = workspace.createLeafBySplit(activeLeaf, 'horizontal', true);
-            break;
+            const modal = new Modal(this.plugin.app);
+            modal.titleEl.setText(this.translations.t('dashboard.title'));
+            const container = modal.contentEl.createDiv('dashboard-container');
+            const view = new Dashboard(workspace.getLeaf('split'), Settings, this.translations);
+            view.onOpen();
+            modal.onClose = () => {
+               view.onClose();
+            };
+            modal.open();
+            return workspace.getLeaf('split');
          case 'tab':
          default:
             leaf = workspace.getLeaf('split');
