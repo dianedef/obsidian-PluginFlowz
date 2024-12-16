@@ -35,7 +35,7 @@ export class ViewMode {
       }
    }
 
-   private getLeafForMode(mode: TViewMode): WorkspaceLeaf {
+   private getLeafForMode(mode: TViewMode): WorkspaceLeaf | null {
       const workspace = this.plugin.app.workspace;
       
       // Fermer toutes les vues Dashboard existantes
@@ -46,22 +46,31 @@ export class ViewMode {
          }
       });
       
-      let leaf: WorkspaceLeaf;
+      let leaf: WorkspaceLeaf | null = null;
       switch (mode) {
          case 'sidebar':
             leaf = workspace.getRightLeaf(false) ?? workspace.getLeaf('split');
             break;
          case 'popup':
             const modal = new Modal(this.plugin.app);
+            modal.containerEl.addClass('pluginflowz-modal');
             modal.titleEl.setText(this.translations.t('dashboard.title'));
-            const container = modal.contentEl.createDiv('dashboard-container');
-            const view = new Dashboard(workspace.getLeaf('split'), Settings, this.translations);
+            const container = modal.contentEl.createDiv('pluginflowz-dashboard-container');
+            
+            // Créer un leaf temporaire en utilisant les méthodes d'Obsidian
+            const tempLeaf = this.plugin.app.workspace.getLeaf(false);
+            const view = new Dashboard(tempLeaf, Settings, this.translations);
+            
+            // Cacher le leaf mais garder la vue active
+            tempLeaf.containerEl.style.display = 'none';
+            
             view.onOpen();
             modal.onClose = () => {
                view.onClose();
+               tempLeaf.detach();
             };
             modal.open();
-            return workspace.getLeaf('split');
+            return null; // Ne pas retourner de leaf pour le mode popup
          case 'tab':
          default:
             leaf = workspace.getLeaf('split');
@@ -79,22 +88,25 @@ export class ViewMode {
       await this.closeCurrentView();
 
       const leaf = this.getLeafForMode(mode);
-      await leaf.setViewState({
-         type: 'pluginflowz-view',
-         active: true,
-         state: { 
-            mode: mode,
-            leafId: this.leafId
-         }
-      });
+      
+      if (leaf && mode !== 'popup') {
+         await leaf.setViewState({
+            type: 'pluginflowz-view',
+            active: true,
+            state: { 
+               mode: mode,
+               leafId: this.leafId
+            }
+         });
+
+         this.currentView = leaf.view as Dashboard;
+         this.activeLeaf = leaf;
+         this.plugin.app.workspace.revealLeaf(leaf);
+      }
 
       this.currentMode = mode;
       // Sauvegarder le nouveau mode dans les settings
       await Settings.saveSettings({ currentMode: mode });
-      
-      this.currentView = leaf.view as Dashboard;
-      this.activeLeaf = leaf;
-      this.plugin.app.workspace.revealLeaf(leaf);
    }
 
    getActiveLeaf(): WorkspaceLeaf | null {

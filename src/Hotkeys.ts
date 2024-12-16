@@ -11,27 +11,19 @@ export class Hotkeys {
       private viewMode: ViewMode
    ) {}
 
-   private handleCommandError(error: unknown) {
-      if (error instanceof CommandError) {
-         console.error('[Hotkeys]', error);
-         new Notice(this.translations.t(`errors.${error.code}`));
-         throw error;
-      }
-      throw error;
-   }
-
    registerHotkeys() {
       // Ouvrir le dashboard
       this.plugin.addCommand({
          id: 'open-plugins-dashboard',
          name: this.translations.t('commands.openDashboard'),
-         icon: 'dashboard',
+         icon: 'layout-grid',
          callback: async () => {
             try {
                const mode = await Settings.getViewMode();
                await this.viewMode.setView(mode);
             } catch (error) {
-               this.handleCommandError(error);
+               console.error('[Hotkeys]', error);
+               new Notice(this.translations.t('errors.openDashboard'));
             }
          },
          hotkeys: [{ modifiers: ['Alt'], key: 'P' }]
