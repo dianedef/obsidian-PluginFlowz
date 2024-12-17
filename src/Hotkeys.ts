@@ -1,15 +1,27 @@
 import { Plugin, Notice } from 'obsidian';
 import { Settings } from './Settings';
-import { Translations } from './Translations';
-import { ViewMode } from './ViewMode';
+import type { TPluginGroup } from './types';
+import { useTranslations } from './composables/useTranslations';
+import { useViewMode } from './composables/useViewMode';
+import { usePluginManager } from './composables/usePluginManager';
+
+type ViewMode = ReturnType<typeof useViewMode>;
 
 export class Hotkeys {
+   private translations = useTranslations();
+   private pluginManager = usePluginManager();
+
    constructor(
       private plugin: Plugin,
       private settings: Settings,
-      private translations: Translations,
       private viewMode: ViewMode
-   ) {}
+   ) {
+      // S'assurer que viewMode est bien initialisé
+      if (!viewMode || typeof viewMode.setView !== 'function') {
+         throw new Error('[Hotkeys] ViewMode non initialisé correctement');
+      }
+   }
+
    registerHotkeys() {
       // Ouvrir le dashboard
       this.plugin.addCommand({
@@ -28,19 +40,27 @@ export class Hotkeys {
          hotkeys: [{ modifiers: ['Alt'], key: 'P' }]
       });
 
+      // Activer les groupes
+      const activateGroup = async (group: TPluginGroup, errorKey: string) => {
+         try {
+            const plugins = await this.pluginManager.getPluginsByGroup(group);
+            for (const plugin of plugins) {
+               if (!plugin.activate) {
+                  await this.pluginManager.activatePlugin(plugin);
+               }
+            }
+         } catch (error) {
+            console.error('[Hotkeys]', error);
+            new Notice(this.translations.t(errorKey));
+         }
+      };
+
       // Activer le groupe Tech
       this.plugin.addCommand({
          id: 'activate-tech-group',
          name: this.translations.t('commands.activateTechGroup'),
          icon: 'cogs',
-         callback: async () => {
-            try {
-               await this.viewMode.activateGroup('Tech');
-            } catch (error) {
-               console.error('[Hotkeys]', error);
-               new Notice(this.translations.t('errors.activateTechGroup'));
-            }
-         },
+         callback: () => activateGroup('Tech', 'errors.activateTechGroup'),
          hotkeys: [{ modifiers: ['Alt'], key: 'T' }]
       });
 
@@ -49,14 +69,7 @@ export class Hotkeys {
          id: 'activate-outils-group',
          name: this.translations.t('commands.activateOutilsGroup'),
          icon: 'tools',
-         callback: async () => {
-            try {
-               await this.viewMode.activateGroup('Outils');
-            } catch (error) {
-               console.error('[Hotkeys]', error);
-               new Notice(this.translations.t('errors.activateOutilsGroup'));
-            }
-         },
+         callback: () => activateGroup('Outils', 'errors.activateOutilsGroup'),
          hotkeys: [{ modifiers: ['Alt'], key: 'O' }]
       });
 
@@ -65,14 +78,7 @@ export class Hotkeys {
          id: 'activate-base-group',
          name: this.translations.t('commands.activateBaseGroup'),
          icon: 'home',
-         callback: async () => {
-            try {
-               await this.viewMode.activateGroup('Base');
-            } catch (error) {
-               console.error('[Hotkeys]', error);
-               new Notice(this.translations.t('errors.activateBaseGroup'));
-            }
-         },
+         callback: () => activateGroup('Base', 'errors.activateBaseGroup'),
          hotkeys: [{ modifiers: ['Alt'], key: 'B' }]
       });
    }
