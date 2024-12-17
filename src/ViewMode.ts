@@ -57,9 +57,9 @@ export class ViewMode extends Component {
             modal.containerEl.addClass('pluginflowz-modal');
             modal.titleEl.setText(this.translations.t('dashboard.title'));
 
-            // Créer une nouvelle instance du Dashboard pour la popup
+            // Créer une instance du Dashboard en mode popup
             const dashboard = new Dashboard(
-               workspace.getLeaf('split'), // leaf temporaire
+               null,
                Settings,
                this.translations,
                this.plugin

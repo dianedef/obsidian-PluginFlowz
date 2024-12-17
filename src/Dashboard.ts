@@ -11,20 +11,22 @@ export class Dashboard extends ItemView {
     private translations: Translations;
     private plugins: IPlugin[] = [];
     private pluginManager: PluginManager;
+    private isPopup: boolean = false;
 
     constructor(
-        leaf: WorkspaceLeaf,
+        leaf: WorkspaceLeaf | null,
         private settings: Settings,
         translations: Translations,
         private plugin: Plugin
     ) {
-        super(leaf);
+        super(leaf || plugin.app.workspace.getLeaf(false));
         this.translations = translations;
         this.pluginManager = new PluginManager(this.plugin);
+        this.isPopup = !leaf;
     }
 
     getViewType(): string {
-        return 'pluginflowz-view';
+        return this.isPopup ? 'pluginflowz-popup' : 'pluginflowz-view';
     }
 
     getDisplayText(): string {
@@ -32,14 +34,16 @@ export class Dashboard extends ItemView {
     }
 
     async onOpen() {
-        const container = this.containerEl.children[1] as HTMLElement;
-        container.empty();
-        
-        // Charger les plugins via le PluginManager
-        this.plugins = await this.pluginManager.getAllPlugins();
-        
-        // Utiliser la fonction utilitaire
-        await this.renderContent(container);
+        if (!this.isPopup) {
+            const container = this.containerEl.children[1] as HTMLElement;
+            container.empty();
+            
+            // Charger les plugins via le PluginManager
+            this.plugins = await this.pluginManager.getAllPlugins();
+            
+            // Utiliser la fonction utilitaire
+            await this.renderContent(container);
+        }
     }
 
     async onClose() {
