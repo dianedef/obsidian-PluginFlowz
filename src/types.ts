@@ -34,4 +34,5 @@ export interface DefaultSettings {
    notesFolder: string;
    template: string;
    defaultViewMode: 'list' | 'cards';
+   selectedStatuses: TPluginStatus[];
 } 

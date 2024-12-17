@@ -108,8 +108,8 @@ export default class PluginFlowz extends Plugin {
             const settings = await Settings.loadSettings();
             if (file.path.startsWith(settings.notesFolder)) {
                // Rafraîchir la vue
-               if (this.viewMode) {
-                  await this.viewMode.refresh();
+               if (this.dashboard) {
+                  await this.dashboard.refresh();
                }
             }
          })

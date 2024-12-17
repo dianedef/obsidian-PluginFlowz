@@ -12,6 +12,7 @@ export interface DefaultSettings {
    template: string;
    defaultViewMode: 'list' | 'cards';
    plugins: IPlugin[];
+   selectedStatuses: TPluginStatus[];
 }
 
 export const DEFAULT_SETTINGS: DefaultSettings = {
@@ -22,6 +23,7 @@ export const DEFAULT_SETTINGS: DefaultSettings = {
    notesFolder: 'pluginNotes',
    template: '# {{name}}\n\n{{description}}\n\n{{url}}',
    defaultViewMode: 'list',
+   selectedStatuses: [],
    plugins: []
 };
 

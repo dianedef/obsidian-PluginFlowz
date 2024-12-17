@@ -248,7 +248,8 @@ styleEl.textContent = `
 
     .pluginflowz-rating-text:hover,
     .pluginflowz-rating-value:hover {
-        transform: scale(1.4);
+        transform: scale(1.1);
+        color: var(--interactive-accent);
     }
 
     .pluginflowz-tag {
@@ -387,7 +388,8 @@ styleEl.textContent = `
         color: var(--interactive-accent);
     }
 
-    .pluginflowz-tag-status:hover {
+    .pluginflowz-tag-status:hover,
+    .pluginflowz-tag-status.selected {
         transform: scale(1.1);
         opacity: 1 !important;
     }
