@@ -1,6 +1,6 @@
 import { App, Plugin, PluginSettingTab, Setting, Modal, Notice, ButtonComponent, DropdownComponent, SliderComponent } from 'obsidian';
 import { ViewMode } from './ViewMode';
-import { TViewMode, IPluginData, IPlugin, TPluginStatus } from './types';
+import { TViewMode, IPluginData, IPlugin, TPluginStatus, TDashboardView } from './types';
 import { Translations } from './Translations';
 
 export interface DefaultSettings {
@@ -10,7 +10,7 @@ export interface DefaultSettings {
    enableAutoUpdate: boolean;
    notesFolder: string;
    template: string;
-   defaultViewMode: 'list' | 'cards';
+   currentViewMode: TDashboardView;
    plugins: IPlugin[];
    selectedStatuses: TPluginStatus[];
 }
@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: DefaultSettings = {
    enableAutoUpdate: true,
    notesFolder: 'pluginNotes',
    template: '# {{name}}\n\n{{description}}\n\n{{url}}',
-   defaultViewMode: 'list',
+   currentViewMode: 'cards',
    selectedStatuses: [],
    plugins: []
 };

@@ -252,54 +252,80 @@ styleEl.textContent = `
         color: var(--interactive-accent);
     }
 
+    /* ===== Tags ===== */
     .pluginflowz-tag {
         display: inline-flex;
         align-items: center;
-        font-weight: 600;
-        gap: 4px;
-        padding: 2px 8px;
-        background-color: var(--interactive-accent);
-        color: var(--text-on-accent);
-        border-radius: 12px;
-        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 12px;
+        margin: 2px;
+        border-radius: 16px;
+        font-size: 13px;
+        background-color: var(--background-modifier-border);
+        color: var(--text-normal);
         transition: all 0.2s ease;
         cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
-    .pluginflowz-tag:hover {
-        background-color: var(--interactive-accent-hover);
+    .pluginflowz-tag:hover,
+    .pluginflowz-tag.selected {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
     }
 
-    .pluginflowz-tag-remove {
-        cursor: pointer;
-        opacity: 0.7;
-        font-size: 14px;
-        margin-left: 4px;
-        color: inherit;
-    }
-
-    .pluginflowz-tag-status {
-        background-color: var(--interactive-hover);
-        color: white;
+    /* Status Tags - Common styles */
+    .pluginflowz-tag-status,
+    .pluginflowz-filter-tag.pluginflowz-tag-status {
+        font-weight: 600;
+        letter-spacing: 0.3px;
     }
         
-    .pluginflowz-tag-status.exploring {
-        background-color: var(--interactive-accent-hover);
-        opacity: 0.6;
+    .pluginflowz-tag-status.exploring,
+    .pluginflowz-filter-tag.pluginflowz-tag-status.exploring {
+        background-color: var(--interactive-accent);
+        color: var(--text-on-accent);
+        opacity: 0.75;
     }
 
-    .pluginflowz-tag-status.active {
+    .pluginflowz-tag-status.active,
+    .pluginflowz-filter-tag.pluginflowz-tag-status.active {
         background-color: var(--background-modifier-success);
-        opacity: 0.6;
+        color: var(--text-on-accent);
+        opacity: 0.75;
     }
 
-    .pluginflowz-tag-status.inactive {
+    .pluginflowz-tag-status.inactive,
+    .pluginflowz-filter-tag.pluginflowz-tag-status.inactive {
         background-color: var(--background-modifier-error);
-        opacity: 0.6;
+        color: var(--text-on-accent);
+        opacity: 0.75;
     }
-    .pluginflowz-tag-status.ignoring {
+
+    .pluginflowz-tag-status.ignoring,
+    .pluginflowz-filter-tag.pluginflowz-tag-status.ignoring {
         background-color: var(--background-modifier-border);
-        opacity: 0.8;
+        color: var(--text-muted);
+        opacity: 0.9;
+    }
+
+    .pluginflowz-tag-status:hover,
+    .pluginflowz-tag-status.selected,
+    .pluginflowz-filter-tag.pluginflowz-tag-status:hover,
+    .pluginflowz-filter-tag.pluginflowz-tag-status.selected {
+        opacity: 1;
+        transform: translateY(-1px) scale(1.05);
+    }
+
+    /* Filter Tags Container */
+    .pluginflowz-filter-tags,
+    .pluginflowz-filter-status,
+    .pluginflowz-filter-groups {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 4px;
+        align-items: center;
     }
 
     .pluginflowz-search {

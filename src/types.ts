@@ -1,4 +1,5 @@
 export type TViewMode = 'tab' | 'sidebar' | 'popup';
+export type TDashboardView = 'list' | 'cards';
 
 export type TPluginStatus = 'exploring' | 'active' | 'inactive' | 'ignoring';
 export type TPluginGroup = 'Tech' | 'Outils' | 'Base' | 'Sans groupe';

@@ -1,25 +1,24 @@
 import { Plugin, Menu, Component } from 'obsidian';
 import { TViewMode } from './types';
 import { registerStyles } from './RegisterStyles';
-import { Settings, SettingsTab, DEFAULT_SETTINGS } from './Settings'
+import { Settings, SettingsTab, DEFAULT_SETTINGS } from './Settings';
 import { Translations } from './Translations';
 import { Hotkeys } from './Hotkeys';
-import { Dashboard } from './Dashboard';
+import { DashboardView } from './Dashboard';
 import { ViewMode } from './ViewMode';
-import { PluginManager } from './PluginManager';
 
 export default class PluginFlowz extends Plugin {
    private viewMode!: ViewMode;
    settings!: Settings;
    private translations: Translations = new Translations();
    private hotkeys!: Hotkeys;
-   private dashboard!: Dashboard;
+   private dashboard!: DashboardView;
 
    private initializeView() {
       this.registerView(
          "pluginflowz-view",
          (leaf) => {
-            const view = new Dashboard(leaf, this.settings, this.translations, this);
+            const view = new DashboardView(leaf, this);
             this.dashboard = view;
             return view;
          }
@@ -32,13 +31,16 @@ export default class PluginFlowz extends Plugin {
       // Initialisation
       Settings.initialize(this);
       console.log('🔌 PluginFlowz - Initialisation terminée', this.app);
-      
+
       // Initialiser les traductions
       this.loadLanguage();
 
-      // Initialiser ViewMode
+      // Initialiser les settings
+      await Settings.loadSettings();
+
+      // Initialiser le gestionnaire de vue
       this.viewMode = new ViewMode(this);
-      
+
       // Initialiser les hotkeys
       this.hotkeys = new Hotkeys(
          this,
@@ -64,8 +66,13 @@ export default class PluginFlowz extends Plugin {
          'layout-grid',
          'PluginFlowz', 
          async () => {
-            const mode = await Settings.getViewMode();
-            await this.viewMode.setView(mode);
+            try {
+               const mode = await Settings.getViewMode();
+               await this.viewMode.setView(mode);
+            } catch (error) {
+               console.error('[PluginFlowz]', error);
+               new Notice(this.translations.t('errors.openDashboard'));
+            }
          }
       );
 
@@ -78,7 +85,13 @@ export default class PluginFlowz extends Plugin {
                item.setTitle(title)
                   .setIcon(icon)
                   .onClick(async () => {
-                     await this.viewMode.setView(mode);
+                     try {
+                        await this.viewMode.setView(mode);
+                        await Settings.saveSettings({ currentMode: mode });
+                     } catch (error) {
+                        console.error('[PluginFlowz]', error);
+                        new Notice(this.translations.t('errors.openDashboard'));
+                     }
                   });
             });
          };
