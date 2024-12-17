@@ -69,6 +69,41 @@ export default class PluginFlowz extends Plugin {
          }
       );
 
+      // Menu hover
+      ribbonIcon.addEventListener('mouseenter', (event: MouseEvent) => {
+         const menu = new Menu(this.app);
+         
+         menu.addItem((item) => {
+            item
+               .setTitle(this.translations.t('settings.defaultViewMode.tab'))
+               .setIcon('layout-template')
+               .onClick(async () => {
+                  await this.viewMode.setView('tab');
+               });
+         });
+
+         menu.addItem((item) => {
+            item
+               .setTitle(this.translations.t('settings.defaultViewMode.sidebar'))
+               .setIcon('layout-sidebar-right')
+               .onClick(async () => {
+                  await this.viewMode.setView('sidebar');
+               });
+         });
+
+         menu.addItem((item) => {
+            item
+               .setTitle(this.translations.t('settings.defaultViewMode.popup'))
+               .setIcon('layout-dashboard')
+               .onClick(async () => {
+                  await this.viewMode.setView('popup');
+               });
+         });
+
+         const rect = (event.target as HTMLElement).getBoundingClientRect();
+         menu.showAtPosition({ x: rect.right + 5, y: rect.top });
+      });
+
       // Écouter les modifications de notes
       this.registerEvent(
          this.app.metadataCache.on('changed', async (file) => {
