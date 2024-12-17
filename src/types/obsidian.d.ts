@@ -4,6 +4,7 @@ declare module 'obsidian' {
   interface HTMLElement {
     empty(): void;
     createEl(tag: string, attrs?: any): HTMLElement;
+    contains(other: Node | null): boolean;
   }
 
   interface TextComponent {
@@ -22,6 +23,11 @@ declare module 'obsidian' {
   export class App {
     vault: Vault;
     workspace: Workspace;
+    plugins: {
+        manifests: Record<string, PluginManifest>;
+        enabledPlugins: Set<string>;
+        getPlugin(id: string): Plugin | null;
+    };
   }
 
   export class Vault {
@@ -43,6 +49,10 @@ declare module 'obsidian' {
   export class Workspace {
     getLeaf(createIfNotFound?: boolean): WorkspaceLeaf;
     getActiveFile(): TFile | null;
+    on(name: 'layout-change', callback: () => any): EventRef;
+    on(name: 'active-leaf-change', callback: (leaf: WorkspaceLeaf) => any): EventRef;
+    on(name: 'file-open', callback: (file: TFile | null) => any): EventRef;
+    detachLeavesOfType(type: string): void;
   }
 
   export class TFile {
@@ -125,4 +135,18 @@ interface Console {
   info(message: string, ...args: any[]): void;
   warn(message: string, ...args: any[]): void;
   error(message: string, ...args: any[]): void;
+}
+
+export interface PluginManifest {
+    id: string;
+    name: string;
+    version: string;
+    description: string;
+    author: string;
+    authorUrl?: string;
+    isDesktopOnly?: boolean;
+}
+
+export interface EventRef {
+    // Interface pour les références d'événements
 } 

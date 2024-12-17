@@ -54,6 +54,28 @@ export class Settings {
       const data = await this.plugin.loadData();
       return (data?.currentMode || DEFAULT_SETTINGS.currentMode) as TViewMode;
    }
+
+   static async updateGroups(groups: TPluginGroup[]): Promise<void> {
+      const settings = await this.loadSettings();
+      const oldGroups = settings.groups;
+      settings.groups = groups;
+      await this.saveSettings(settings);
+
+      // Si un groupe a été supprimé, mettre à jour les notes qui l'utilisaient
+      const removedGroups = oldGroups.filter(g => !groups.includes(g));
+      if (removedGroups.length > 0) {
+         const pluginManager = new PluginManager(this.plugin);
+         const plugins = await pluginManager.getAllPlugins();
+         
+         for (const plugin of plugins) {
+            const pluginGroups = plugin.group.filter(g => !removedGroups.includes(g as TPluginGroup));
+            if (pluginGroups.length !== plugin.group.length) {
+               plugin.group = pluginGroups.length > 0 ? pluginGroups : ['Sans groupe'];
+               await pluginManager.updatePluginNote(plugin);
+            }
+         }
+      }
+   }
 }
 
 export class SettingsTab extends PluginSettingTab {

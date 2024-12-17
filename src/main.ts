@@ -1,4 +1,4 @@
-import { Plugin, Menu } from 'obsidian';
+import { Plugin, Menu, Component } from 'obsidian';
 import { TViewMode } from './types';
 import { registerStyles } from './RegisterStyles';
 import { Settings, SettingsTab, DEFAULT_SETTINGS } from './Settings'
@@ -31,12 +31,13 @@ export default class PluginFlowz extends Plugin {
 
       // Initialisation
       Settings.initialize(this);
+      console.log('🔌 PluginFlowz - Initialisation terminée', this.app);
       
       // Initialiser les traductions
       this.loadLanguage();
 
-      // Initialiser ViewMode avant de l'utiliser
-      this.viewMode = new ViewMode(this, this.app);
+      // Initialiser ViewMode
+      this.viewMode = new ViewMode(this);
       
       // Initialiser les hotkeys
       this.hotkeys = new Hotkeys(
@@ -49,6 +50,7 @@ export default class PluginFlowz extends Plugin {
       
       this.initializeView();
 
+      // Ajouter l'onglet de paramètres
       this.addSettingTab(new SettingsTab(
          this.app,
          this,
@@ -67,56 +69,20 @@ export default class PluginFlowz extends Plugin {
          }
       );
 
-      ribbonIcon.addEventListener('mouseenter', () => {
-         const menu = new Menu();
-
-         const createMenuItem = (title: string, icon: string, mode: TViewMode) => {
-            menu.addItem((item) => {
-               item.setTitle(title)
-                  .setIcon(icon)
-                  .onClick(async () => {
-                     await this.viewMode.setView(mode);
-                  });
-            });
-         };
-
-         createMenuItem("Dashboard Tab", "tab", "tab" as TViewMode);
-         createMenuItem("Dashboard Sidebar", "layout-sidebar-right", "sidebar" as TViewMode);
-         createMenuItem("Dashboard Popup", "layout-top", "popup" as TViewMode);
-
-         const iconRect = ribbonIcon.getBoundingClientRect();
-         menu.showAtPosition({ 
-            x: iconRect.left, 
-            y: iconRect.top - 10
-         });
-
-         const handleMouseLeave = (e: MouseEvent) => {
-            const target = e.relatedTarget as Node;
-            const menuDom = (menu as any).dom;
-            const isOverIcon = ribbonIcon.contains(target);
-            const isOverMenu = menuDom && menuDom.contains(target);
-            
-            if (!isOverIcon && !isOverMenu) {
-               menu.hide();
-               ribbonIcon.removeEventListener('mouseleave', handleMouseLeave);
-               if (menuDom) {
-                  menuDom.removeEventListener('mouseleave', handleMouseLeave);
+      // Écouter les modifications de notes
+      this.registerEvent(
+         this.app.metadataCache.on('changed', async (file) => {
+            const settings = await Settings.loadSettings();
+            if (file.path.startsWith(settings.notesFolder)) {
+               // Rafraîchir la vue
+               if (this.viewMode) {
+                  await this.viewMode.refresh();
                }
             }
-         };
-
-         ribbonIcon.addEventListener('mouseleave', handleMouseLeave);
-         const menuDom = (menu as any).dom;
-         if (menuDom) {
-            menuDom.addEventListener('mouseleave', handleMouseLeave);
-         }
-      });
+         })
+      );
 
       registerStyles();
-
-      // Synchroniser les plugins au démarrage
-      const pluginManager = new PluginManager(this);
-      await pluginManager.syncPlugins();
    }
 
    private async loadApp(): Promise<void> {

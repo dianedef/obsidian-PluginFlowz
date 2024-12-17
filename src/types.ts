@@ -1,10 +1,11 @@
 export type TViewMode = 'tab' | 'sidebar' | 'popup';
 
 export type TPluginStatus = 'exploring' | 'active' | 'inactive' | 'ignoring';
-export type TPluginGroup = 'Tech' | 'Outils' | 'Base';
+export type TPluginGroup = 'Tech' | 'Outils' | 'Base' | 'Sans groupe';
 export type TPluginTags = 'Productivity' | 'Writing' | 'Blogging' | string;
 
 export interface IPlugin {
+    id: string;
     title: string;
     url: string;
     tags: TPluginTags[];

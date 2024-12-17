@@ -10,7 +10,6 @@ export class Hotkeys {
       private translations: Translations,
       private viewMode: ViewMode
    ) {}
-
    registerHotkeys() {
       // Ouvrir le dashboard
       this.plugin.addCommand({
@@ -27,6 +26,54 @@ export class Hotkeys {
             }
          },
          hotkeys: [{ modifiers: ['Alt'], key: 'P' }]
+      });
+
+      // Activer le groupe Tech
+      this.plugin.addCommand({
+         id: 'activate-tech-group',
+         name: this.translations.t('commands.activateTechGroup'),
+         icon: 'cogs',
+         callback: async () => {
+            try {
+               await this.viewMode.activateGroup('Tech');
+            } catch (error) {
+               console.error('[Hotkeys]', error);
+               new Notice(this.translations.t('errors.activateTechGroup'));
+            }
+         },
+         hotkeys: [{ modifiers: ['Alt'], key: 'T' }]
+      });
+
+      // Activer le groupe Outils
+      this.plugin.addCommand({
+         id: 'activate-outils-group',
+         name: this.translations.t('commands.activateOutilsGroup'),
+         icon: 'tools',
+         callback: async () => {
+            try {
+               await this.viewMode.activateGroup('Outils');
+            } catch (error) {
+               console.error('[Hotkeys]', error);
+               new Notice(this.translations.t('errors.activateOutilsGroup'));
+            }
+         },
+         hotkeys: [{ modifiers: ['Alt'], key: 'O' }]
+      });
+
+      // Activer le groupe Base
+      this.plugin.addCommand({
+         id: 'activate-base-group',
+         name: this.translations.t('commands.activateBaseGroup'),
+         icon: 'home',
+         callback: async () => {
+            try {
+               await this.viewMode.activateGroup('Base');
+            } catch (error) {
+               console.error('[Hotkeys]', error);
+               new Notice(this.translations.t('errors.activateBaseGroup'));
+            }
+         },
+         hotkeys: [{ modifiers: ['Alt'], key: 'B' }]
       });
    }
 }

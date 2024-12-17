@@ -1,12 +1,14 @@
-import { Plugin, WorkspaceLeaf, Modal, Notice, Setting, ProgressBarComponent, SearchComponent } from 'obsidian';
+import { Plugin, WorkspaceLeaf, Modal, Notice, Setting, Component, setIcon } from 'obsidian';
 import { TViewMode, IPlugin, IPluginData, TPluginStatus } from './types';
 import { Settings } from './Settings';
 import { Dashboard } from './Dashboard';
 import { Translations } from './Translations';
 import { Rating } from './components/ui/Rating';
 import { Tag } from './components/ui/Tag';
+import { TriStateToggle } from './components/ui/TriStateToggle';
+import { PluginManager } from './PluginManager';
 
-export class ViewMode {
+export class ViewMode extends Component {
    private currentView: Dashboard | null = null;
    private currentMode: TViewMode | null = null;
    private activeLeaf: WorkspaceLeaf | null = null;
@@ -17,6 +19,7 @@ export class ViewMode {
    private settings: any;
 
    constructor(private plugin: Plugin) {
+      super();
       this.translations = new Translations();
       // Initialiser les modes depuis les settings
       Settings.loadSettings().then(settings => {
@@ -207,19 +210,31 @@ export class ViewMode {
 
       plugins.forEach(plugin => {
          console.log('Creating card for plugin:', plugin.title); // Debug
+         console.log('Plugin status:', plugin.status); // Debug
          const card = cardsGrid.createDiv('pluginflowz-card');
          card.setAttribute('data-plugin-title', plugin.title);
          
          // Header avec actions
          const cardHeader = card.createDiv('pluginflowz-card-header');
-         const titleEl = cardHeader.createEl('h3', { text: plugin.title });
+         cardHeader.createEl('h3', { text: plugin.title });
          
          // Statut juste sous le titre
          const statusContainer = card.createDiv('pluginflowz-card-status-container');
-         const statusTag = new Tag(statusContainer, plugin.status[0], 
-            () => this.cyclePluginStatus(plugin, statusContainer),
-            `pluginflowz-tag-status ${plugin.status[0]}`
-         );
+         console.log('Status container created:', statusContainer); // Debug
+         
+         if (plugin.status && plugin.status.length > 0) {
+            console.log('Creating status tag with:', plugin.status[0]); // Debug
+            new Tag(statusContainer, plugin.status[0], 
+               () => this.cyclePluginStatus(plugin, statusContainer),
+               `pluginflowz-tag-status ${plugin.status[0]}`
+            );
+         } else {
+            console.log('No status found for plugin:', plugin.title); // Debug
+            new Tag(statusContainer, 'exploring', 
+               () => this.cyclePluginStatus(plugin, statusContainer),
+               'pluginflowz-tag-status exploring'
+            );
+         }
          
          // Boutons d'action
          const actions = new Setting(cardHeader);
@@ -311,9 +326,9 @@ export class ViewMode {
    private async renderContent(container: HTMLElement) {
       container.empty();
       
-      // Charger les plugins d'abord
-      const data = await this.plugin.loadData();
-      this.plugins = data?.plugins || [];
+      // Charger les plugins depuis les notes
+      const pluginManager = new PluginManager(this.plugin);
+      this.plugins = await pluginManager.getAllPlugins();
       
       console.log('Plugins chargés:', this.plugins);
       console.log('Tags uniques:', [...new Set(this.plugins.flatMap(p => p.tags))]);
@@ -327,12 +342,15 @@ export class ViewMode {
       
       // Ajouter la barre de recherche
       const searchContainer = header.createDiv('pluginflowz-search');
-      console.log('Recherche container :', searchContainer);
-      const searchComponent = new SearchComponent(searchContainer);
-      console.log('Recherche component :', searchComponent);
-      searchComponent.setPlaceholder('Search plugins...');
-      searchComponent.onChange(value => {
-         const searchTerm = value.toLowerCase();
+      const searchInput = searchContainer.createEl('input', {
+         type: 'text',
+         placeholder: 'Rechercher des plugins...',
+         cls: 'pluginflowz-search-input'
+      });
+      
+      this.registerDomEvent(searchInput, 'input', (e) => {
+         const target = e.target as HTMLInputElement;
+         const searchTerm = target.value.toLowerCase();
          const filteredPlugins = this.plugins.filter(plugin => 
             plugin.title.toLowerCase().includes(searchTerm) ||
             plugin.description.toLowerCase().includes(searchTerm) ||
@@ -361,7 +379,7 @@ export class ViewMode {
          )
       });
       
-      viewButton.addEventListener('click', async () => {
+      this.registerDomEvent(viewButton, 'click', async () => {
          this.currentViewMode = this.currentViewMode === 'cards' ? 'list' : 'cards';
          viewButton.setText(this.translations.t(
             this.currentViewMode === 'cards' 
@@ -382,18 +400,30 @@ export class ViewMode {
       // Groupes à gauche
       const groupsContainer = filtersRow.createDiv('pluginflowz-filter-groups');
       
-      // Ajouter les groupes spéciaux
-      new Tag(groupsContainer, 'Tout activer', async () => {
-         this.plugins.forEach(p => p.activate = true);
+      // Créer un conteneur pour les boutons de contrôle global
+      const globalControlsContainer = groupsContainer.createDiv('pluginflowz-global-controls');
+      
+      // Calculer l'état actuel
+      const activeCount = this.plugins.filter(p => p.activate).length;
+      const allActive = activeCount === this.plugins.length;
+      const allInactive = activeCount === 0;
+      const mixedState = !allActive && !allInactive;
+      
+      // Créer le toggle personnalisé
+      const toggleContainer = globalControlsContainer.createDiv();
+      const triStateToggle = new TriStateToggle(toggleContainer, async (state) => {
+         if (state === 'left') {
+            this.plugins.forEach(p => p.activate = false);
+         } else if (state === 'right') {
+            this.plugins.forEach(p => p.activate = true);
+         }
          await Settings.saveSettings(this.settings);
          this.renderContent(container);
-      }, 'pluginflowz-filter-tag pluginflowz-filter-all');
-
-      new Tag(groupsContainer, 'Tout désactiver', async () => {
-         this.plugins.forEach(p => p.activate = false);
-         await Settings.saveSettings(this.settings);
-         this.renderContent(container);
-      }, 'pluginflowz-filter-tag pluginflowz-filter-none');
+      });
+      
+      // Définir l'état initial
+      const initialState = this.getGlobalToggleState();
+      triStateToggle.setState(initialState);
 
       // Séparateur
       groupsContainer.createDiv('pluginflowz-filter-separator');
@@ -464,7 +494,7 @@ export class ViewMode {
       }
    }
 
-   private async cyclePluginStatus(plugin: IPlugin, cardFooter: HTMLElement) {
+   private async cyclePluginStatus(plugin: IPlugin, statusContainer: HTMLElement) {
       const statuses: TPluginStatus[] = ['exploring', 'active', 'inactive', 'ignoring'];
       const currentIndex = statuses.indexOf(plugin.status[0] as TPluginStatus);
       const nextIndex = (currentIndex + 1) % statuses.length;
@@ -472,18 +502,12 @@ export class ViewMode {
       // Mettre à jour le statut
       plugin.status = [statuses[nextIndex]];
       
-      // Mettre à jour les plugins dans les settings
-      const settings = await Settings.loadSettings();
-      const pluginIndex = settings.plugins.findIndex(p => p.title === plugin.title);
-      if (pluginIndex !== -1) {
-          settings.plugins[pluginIndex] = plugin;
-          // Mettre à jour this.plugins aussi
-          this.plugins = settings.plugins;
-      }
-      await Settings.saveSettings(settings);
+      // Mettre à jour la note
+      const pluginManager = new PluginManager(this.plugin);
+      await pluginManager.updatePluginNote(plugin);
       
       // Mettre à jour juste le tag
-      const statusTag = cardFooter.querySelector('.pluginflowz-tag-status') as HTMLElement;
+      const statusTag = statusContainer.querySelector('.pluginflowz-tag') as HTMLElement;
       if (statusTag) {
           statusTag.textContent = plugin.status[0];
           statuses.forEach(s => statusTag.removeClass(s));
@@ -496,15 +520,12 @@ export class ViewMode {
       if (!plugin.tags.includes(tag)) {
          plugin.tags.push(tag);
          
-         // Sauvegarder dans les settings
-         const settings = await Settings.loadSettings();
-         const pluginIndex = settings.plugins.findIndex(p => p.title === plugin.title);
-         if (pluginIndex !== -1) {
-            settings.plugins[pluginIndex] = plugin;
-            await Settings.saveSettings(settings);
-            // Mettre à jour uniquement les tags
-            await this.updateTags(plugin, container);
-         }
+         // Mettre à jour la note
+         const pluginManager = new PluginManager(this.plugin);
+         await pluginManager.updatePluginNote(plugin);
+         
+         // Mettre à jour uniquement les tags
+         await this.updateTags(plugin, container);
       }
    }
 
@@ -566,4 +587,24 @@ export class ViewMode {
          });
       }
    }
-} 
+
+   public async refresh(): Promise<void> {
+      // Recharger les données
+      const data = await this.plugin.loadData();
+      this.plugins = data?.plugins || [];
+      
+      // Trouver le container actuel
+      const container = this.plugin.app.workspace.containerEl.querySelector('.pluginflowz-dashboard-container');
+      if (container) {
+         // Re-rendre le contenu
+         await this.renderContent(container as HTMLElement);
+      }
+   }
+
+   private getGlobalToggleState(): 'left' | 'middle' | 'right' {
+      const activeCount = this.plugins.filter(p => p.activate).length;
+      if (activeCount === 0) return 'left';
+      if (activeCount === this.plugins.length) return 'right';
+      return 'middle';
+   }
+}
