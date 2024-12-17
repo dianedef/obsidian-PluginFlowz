@@ -2,6 +2,7 @@ import { ItemView, WorkspaceLeaf, Plugin } from 'obsidian';
 import { TViewMode, IPlugin } from './types';
 import { Settings } from './Settings';
 import { Translations } from './Translations';
+import { Tag } from './components/ui/Tag';
 
 export class Dashboard extends ItemView {
     private translations: Translations;

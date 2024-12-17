@@ -1,6 +1,6 @@
 export type TViewMode = 'tab' | 'sidebar' | 'popup';
 
-export type TPluginStatus = 'exploring' | 'active' | 'inactive';
+export type TPluginStatus = 'exploring' | 'active' | 'inactive' | 'ignoring';
 export type TPluginGroup = 'Tech' | 'Outils' | 'Base';
 export type TPluginTags = 'Productivity' | 'Writing' | 'Blogging' | string;
 

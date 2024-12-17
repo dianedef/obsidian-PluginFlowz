@@ -85,8 +85,9 @@ styleEl.textContent = `
 
     /* Header avec toggle */
     .pluginflowz-header {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 20px;
         align-items: center;
         padding: 0 20px;
         margin-bottom: 20px;
@@ -169,54 +170,101 @@ styleEl.textContent = `
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 0;
+        margin-top: 8px;
     }
 
-    /* Progress Bar */
     .progress-container {
         flex: 1;
-        padding: 2px 0;
+        height: 4px;
+        background-color: var(--background-modifier-border);
+        border-radius: 2px;
+        overflow: hidden;
         cursor: pointer;
+        transition: all 0.2s ease;
     }
 
-    /* Cibler la barre de progression elle-même */
-    .progress-container > div {  /* Le conteneur créé par Obsidian */
-        height: 8px !important;
-        background-color: var(--background-modifier-border) !important;
-        border-radius: 4px !important;
-        overflow: hidden !important;
+    .progress-container:hover {
+        height: 8px;
+        background-color: var(--background-modifier-border-hover);
     }
 
-    /* Cibler la partie remplie */
-    .progress-container > div > div {  /* La barre de progression */
-        background-color: var(--interactive-accent) !important;
-        height: 100% !important;
-        border-radius: 4px !important;
-        transition: all 0.2s ease !important;
+    .progress-bar {
+        height: 100%;
+        background-color: var(--interactive-accent);
+        transition: all 0.2s ease;
     }
 
-    .progress-container:hover > div {
-        height: 10px !important;
-        background-color: var(--background-modifier-border-hover) !important;
-    }
-
-    .pluginflowz-card-rating {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 0;
-    }
-
-    .pluginflowz-rating-text {
-        font-size: 14px;
-        color: var(--text-muted);
+    .progress-container:hover .progress-bar {
+        background-color: var(--interactive-accent-hover);
     }
 
     .pluginflowz-rating-value {
-        min-width: 45px;
-        text-align: right;
-        font-size: 14px;
+        font-size: 12px;
         color: var(--text-muted);
+        min-width: 32px;
+        text-align: right;
+    }
+
+    .pluginflowz-rating-text:hover,
+    .pluginflowz-rating-value:hover {
+        opacity: 0.8;
+    }
+
+    .pluginflowz-tag {
+        display: inline-flex;
+        align-items: center;
+        font-weight: 600;
+        gap: 4px;
+        padding: 2px 8px;
+        background-color: var(--interactive-accent);
+        color: var(--text-on-accent);
+        border-radius: 12px;
+        font-size: 12px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pluginflowz-tag:hover {
+        background-color: var(--interactive-accent-hover);
+    }
+
+    .pluginflowz-tag-remove {
+        cursor: pointer;
+        opacity: 0.7;
+        font-size: 14px;
+        margin-left: 4px;
+        color: inherit;
+    }
+
+
+    .pluginflowz-tag-status {
+        background-color: var(--interactive-hover);
+        color: var(--text-normal);
+    }
+        
+    .pluginflowz-tag-status.exploring {
+        background-color: var(--interactive-accent-hover);
+        opacity: 0.6;
+    }
+
+    .pluginflowz-tag-status.active {
+        background-color: var(--background-modifier-success);
+        opacity: 0.6;
+    }
+
+    .pluginflowz-tag-status.inactive {
+        background-color: var(--background-modifier-error);
+        opacity: 0.6;
+    }
+    .pluginflowz-tag-status.ignoring {
+        background-color: var(--background-modifier-border);
+        opacity: 0.6;
+    }
+
+    .pluginflowz-search {
+        max-width: 400px;
+        margin: 0 auto;
+        width: 100%;
     }
 `;
 

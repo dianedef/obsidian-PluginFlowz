@@ -1,8 +1,10 @@
-import { Plugin, WorkspaceLeaf, Modal, Setting, ProgressBarComponent } from 'obsidian';
+import { Plugin, WorkspaceLeaf, Modal, Setting, ProgressBarComponent, SearchComponent } from 'obsidian';
 import { TViewMode, IPlugin } from './types';
 import { Settings } from './Settings';
 import { Dashboard } from './Dashboard';
 import { Translations } from './Translations';
+import { Rating } from './components/ui/Rating';
+import { Tag } from './components/ui/Tag';
 
 export class ViewMode {
    private currentView: Dashboard | null = null;
@@ -140,10 +142,15 @@ export class ViewMode {
          if (plugin.tags.length > 0) {
             const tagsEl = pluginEl.createDiv('pluginflowz-plugin-tags');
             plugin.tags.forEach(tag => {
-               tagsEl.createEl('span', { 
-                  text: tag,
-                  cls: 'pluginflowz-plugin-tag'
-               });
+               new Tag(tagsEl, tag, 
+                  () => {
+                     console.log('Tag clicked:', tag);
+                  },
+                  async () => {
+                     plugin.tags = plugin.tags.filter(t => t !== tag);
+                     await Settings.saveSettings(this.settings);
+                  }
+               );
             });
          }
          
@@ -232,19 +239,21 @@ export class ViewMode {
          if (plugin.tags.length > 0) {
             const tagsContainer = cardFooter.createDiv('pluginflowz-card-tags');
             plugin.tags.forEach(tag => {
+               const sanitizedTag = tag.replace(/\s+/g, '-').toLowerCase();
                tagsContainer.createEl('span', { 
                   text: tag,
-                  cls: 'pluginflowz-tag'
+                  cls: `pluginflowz-tag pluginflowz-tag-${sanitizedTag}`
                });
             });
          }
          
          // Stats
          const stats = cardFooter.createDiv('pluginflowz-card-stats');
-         stats.createEl('span', { 
-            text: plugin.status[0],
-            cls: `pluginflowz-status-${plugin.status[0]}`
-         });
+         const statusTag = new Tag(stats, plugin.status[0], 
+            () => this.cyclePluginStatus(plugin, cardFooter)
+         );
+         statusTag.container.addClass('pluginflowz-tag-status');
+         statusTag.container.addClass(plugin.status[0]);
 
          // Rating avec progress bar
          this.createRatingControl(card, plugin, true);
@@ -253,36 +262,9 @@ export class ViewMode {
 
    private createRatingControl(container: HTMLElement, plugin: IPlugin, isCard: boolean = false) {
        if (isCard) {
-           // Version Card avec Progress Bar
-           const ratingContainer = container.createDiv('pluginflowz-card-rating');
-           const ratingText = ratingContainer.createEl('span', {
-               text: '⭐ ',
-               cls: 'pluginflowz-rating-text'
-           });
-
-           const progressContainer = ratingContainer.createDiv('progress-container');
-           const progressBar = new ProgressBarComponent(progressContainer);
-           
-           // Initialiser la valeur
-           progressBar.setValue(plugin.rating / 5);
-
-           const ratingValue = ratingContainer.createEl('span', {
-               text: `${plugin.rating}/5`,
-               cls: 'pluginflowz-rating-value'
-           });
-
-           // Écouter les changements
-           progressBar.registerOptionListener(async (value) => {
-               plugin.rating = Math.round(value * 5);
-               ratingValue.setText(`${plugin.rating}/5`);
+           new Rating(container, plugin.rating, 5, async (value) => {
+               plugin.rating = value;
                await Settings.saveSettings(this.settings);
-           });
-
-           // Rendre la progress bar interactive
-           progressContainer.addEventListener('click', async (e) => {
-               const rect = progressContainer.getBoundingClientRect();
-               const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-               progressBar.setValue(x / rect.width);
            });
        } else {
            // Version List avec Slider
@@ -307,10 +289,34 @@ export class ViewMode {
       // Container principal
       const dashboardContainer = container.createDiv('pluginflowz-dashboard-container');
       
-      // Header avec titre et toggle
+      // Header avec titre, recherche et toggle
       const header = dashboardContainer.createDiv('pluginflowz-header');
       header.createEl('h2', { text: this.translations.t('dashboard.installedPlugins') });
       
+      // Ajouter la barre de recherche
+      const searchContainer = header.createDiv('pluginflowz-search');
+      const searchComponent = new SearchComponent(searchContainer);
+      searchComponent.setPlaceholder('Search plugins...');
+      searchComponent.onChange(value => {
+         const searchTerm = value.toLowerCase();
+         const filteredPlugins = this.plugins.filter(plugin => 
+            plugin.title.toLowerCase().includes(searchTerm) ||
+            plugin.description.toLowerCase().includes(searchTerm) ||
+            plugin.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+         );
+         
+         // Re-rendre avec les plugins filtrés
+         const contentContainer = dashboardContainer.querySelector('.pluginflowz-content');
+         if (contentContainer) {
+            contentContainer.empty();
+            if (this.currentViewMode === 'cards') {
+               this.renderPluginCards(contentContainer, filteredPlugins);
+            } else {
+               this.renderPluginList(contentContainer, filteredPlugins);
+            }
+         }
+      });
+
       // Bouton de changement de vue
       const viewButton = header.createEl('button', {
          cls: 'pluginflowz-view-button',
@@ -343,6 +349,33 @@ export class ViewMode {
          this.renderPluginCards(contentContainer, this.plugins);
       } else {
          this.renderPluginList(contentContainer, this.plugins);
+      }
+   }
+
+   private async cyclePluginStatus(plugin: IPlugin, cardFooter: HTMLElement) {
+      const statuses: TPluginStatus[] = ['exploring', 'active', 'inactive', 'ignoring'];
+      const currentIndex = statuses.indexOf(plugin.status[0] as TPluginStatus);
+      const nextIndex = (currentIndex + 1) % statuses.length;
+      
+      // Mettre à jour le statut
+      plugin.status = [statuses[nextIndex]];
+      
+      // Mettre à jour les plugins dans les settings
+      const settings = await Settings.loadSettings();
+      const pluginIndex = settings.plugins.findIndex(p => p.title === plugin.title);
+      if (pluginIndex !== -1) {
+          settings.plugins[pluginIndex] = plugin;
+          // Mettre à jour this.plugins aussi
+          this.plugins = settings.plugins;
+      }
+      await Settings.saveSettings(settings);
+      
+      // Mettre à jour juste le tag
+      const statusTag = cardFooter.querySelector('.pluginflowz-tag-status') as HTMLElement;
+      if (statusTag) {
+          statusTag.textContent = plugin.status[0];
+          statuses.forEach(s => statusTag.removeClass(s));
+          statusTag.addClass(plugin.status[0]);
       }
    }
 } 
