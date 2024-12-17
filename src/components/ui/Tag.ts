@@ -1,15 +1,21 @@
 export class Tag {
-    private container: HTMLElement;
+    public container: HTMLElement;
 
     constructor(
         container: HTMLElement,
         private text: string,
-        private onClick?: () => void
+        private onClick?: () => void,
+        private className?: string
     ) {
         this.container = container.createEl('span', {
             cls: 'pluginflowz-tag',
             text: this.text
         });
+        if (className) {
+            className.split(' ').forEach(cls => {
+                if (cls) this.container.addClass(cls);
+            });
+        }
         this.render();
     }
 
@@ -27,4 +33,4 @@ export class Tag {
     public getText(): string {
         return this.text;
     }
-} 
+}

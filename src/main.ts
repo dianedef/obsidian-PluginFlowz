@@ -36,7 +36,7 @@ export default class PluginFlowz extends Plugin {
       this.loadLanguage();
 
       // Initialiser ViewMode avant de l'utiliser
-      this.viewMode = new ViewMode(this);
+      this.viewMode = new ViewMode(this, this.app);
       
       // Initialiser les hotkeys
       this.hotkeys = new Hotkeys(

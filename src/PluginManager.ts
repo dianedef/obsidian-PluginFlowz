@@ -26,7 +26,7 @@ export class PluginManager {
                 activate: this.plugin.app.plugins.getPlugin(id)?.enabled || false,
                 description: manifest.description,
                 transcribe: false,
-                group: [],
+                group: ['Sans groupe'],
                 rating: 0,
                 urgency: 1,
                 importance: 1,

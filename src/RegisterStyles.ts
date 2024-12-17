@@ -86,7 +86,7 @@ styleEl.textContent = `
     /* Header avec toggle */
     .pluginflowz-header {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: 1fr auto;
         gap: 20px;
         align-items: center;
         padding: 0 20px;
@@ -120,6 +120,8 @@ styleEl.textContent = `
         border: none;
         cursor: pointer;
         transition: background-color 0.15s ease;
+        width: auto;
+        white-space: nowrap;
     }
 
     .pluginflowz-view-button:hover {
@@ -131,6 +133,34 @@ styleEl.textContent = `
         margin-top: 10px;
     }
 
+    /* ===== Card Header ===== */
+
+    .pluginflowz-card-header .setting-item-control {
+        cursor: pointer;
+    }
+
+    /* Style pour la checkbox */
+    .checkbox-container {
+        cursor: pointer;
+    }
+    
+    .checkbox-container input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    /* Style pour le bouton de paramètres supplémentaires */
+    .extra-setting-button {
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    .extra-setting-button:hover {
+        opacity: 1;
+    }
+
+    /* ===== Rating ===== */
+    
     .pluginflowz-rating-container .setting-item,
     .pluginflowz-card-rating .setting-item {
         border: none;
@@ -142,8 +172,14 @@ styleEl.textContent = `
         padding: 0;
     }
 
-    .pluginflowz-card-rating .slider {
-        flex: 1;
+    .pluginflowz-card-header .setting-item {
+        border: none;
+        padding: 0;
+    }
+
+    /* Ajout du style pour le toggle */
+    .pluginflowz-card-header .setting-item-control {
+        cursor: pointer;
     }
 
     .pluginflowz-progress {
@@ -181,6 +217,8 @@ styleEl.textContent = `
         overflow: hidden;
         cursor: pointer;
         transition: all 0.2s ease;
+        padding: 8px 0;
+        margin: -8px 0;
     }
 
     .progress-container:hover {
@@ -194,20 +232,23 @@ styleEl.textContent = `
         transition: all 0.2s ease;
     }
 
-    .progress-container:hover .progress-bar {
-        background-color: var(--interactive-accent-hover);
-    }
-
     .pluginflowz-rating-value {
-        font-size: 12px;
+        font-size: 14px;
         color: var(--text-muted);
         min-width: 32px;
         text-align: right;
     }
 
+    .pluginflowz-rating-text,
+    .pluginflowz-rating-value {
+        transition: all 0.2s ease;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
     .pluginflowz-rating-text:hover,
     .pluginflowz-rating-value:hover {
-        opacity: 0.8;
+        transform: scale(1.4);
     }
 
     .pluginflowz-tag {
@@ -236,10 +277,9 @@ styleEl.textContent = `
         color: inherit;
     }
 
-
     .pluginflowz-tag-status {
         background-color: var(--interactive-hover);
-        color: var(--text-normal);
+        color: white;
     }
         
     .pluginflowz-tag-status.exploring {
@@ -258,13 +298,120 @@ styleEl.textContent = `
     }
     .pluginflowz-tag-status.ignoring {
         background-color: var(--background-modifier-border);
-        opacity: 0.6;
+        opacity: 0.8;
     }
 
     .pluginflowz-search {
+        width: 100%;
         max-width: 400px;
         margin: 0 auto;
-        width: 100%;
+    }
+
+    .pluginflowz-filters {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        margin-bottom: 20px;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .pluginflowz-filter-groups,
+    .pluginflowz-filter-status,
+    .pluginflowz-filter-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .pluginflowz-filter-status {
+        flex: 0 0 auto;
+    }
+
+    .pluginflowz-filter-tag {
+        opacity: 0.6;
+        cursor: pointer;
+    }
+
+    .pluginflowz-filter-tag.active {
+        opacity: 1;
+        background-color: var(--interactive-accent);
+        color: var(--text-on-accent);
+    }
+
+    .pluginflowz-rating-text,
+    .pluginflowz-rating-value,
+    .pluginflowz-tag-status {
+        transition: all 0.2s ease;
+    }
+
+    .pluginflowz-rating-text:hover,
+    .pluginflowz-rating-value:hover {
+        transform: scale(1.1);
+        color: var(--interactive-accent);
+    }
+
+    .pluginflowz-tag-status:hover {
+        transform: scale(1.1);
+        opacity: 1 !important;
+    }
+
+    .progress-container {
+        flex: 1;
+        height: 4px;
+        background-color: var(--background-modifier-border);
+        border-radius: 2px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .progress-container:hover {
+        height: 8px;
+    }
+
+
+    /* ===== Plugin Header ===== */
+    .pluginflowz-plugin-header,
+    .pluginflowz-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pluginflowz-plugin-header .setting-item,
+    .pluginflowz-card-header .setting-item {
+        border: none;
+        padding: 0;
+    }
+
+    .pluginflowz-tag-removable:hover {
+        background-color: var(--background-modifier-error-hover);
+        cursor: pointer;
+    }
+
+    .pluginflowz-filter-separator {
+        width: 1px;
+        height: 20px;
+        background-color: var(--background-modifier-border);
+        margin: 0 8px;
+    }
+
+    .pluginflowz-filter-all {
+        background-color: var(--background-modifier-success-hover);
+    }
+
+    .pluginflowz-filter-none {
+        background-color: var(--background-modifier-error-hover);
+    }
+
+    .pluginflowz-card-status-container {
+        margin: 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 `;
 

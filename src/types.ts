@@ -20,14 +20,9 @@ export interface IPlugin {
 }
 
 export interface IPluginData {
-    language: string;
-    currentMode: TViewMode;
-    activeLeafId: string | null;
-    enableAutoUpdate: boolean;
     notesFolder: string;
     plugins: IPlugin[];
     groups: TPluginGroup[];
-    defaultViewMode: TViewMode;
 }
 
 export interface DefaultSettings {
