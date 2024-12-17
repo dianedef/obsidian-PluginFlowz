@@ -169,34 +169,54 @@ styleEl.textContent = `
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-top: 8px;
+        padding: 8px 0;
     }
 
+    /* Progress Bar */
     .progress-container {
         flex: 1;
-        height: 4px;
-        background-color: var(--background-modifier-border);
-        border-radius: 2px;
-        overflow: hidden;
+        padding: 2px 0;
         cursor: pointer;
-        transition: height 0.15s ease;
     }
 
-    .progress-container:hover {
-        height: 8px;
+    /* Cibler la barre de progression elle-même */
+    .progress-container > div {  /* Le conteneur créé par Obsidian */
+        height: 8px !important;
+        background-color: var(--background-modifier-border) !important;
+        border-radius: 4px !important;
+        overflow: hidden !important;
     }
 
-    .progress-bar {
-        height: 100%;
-        background-color: var(--interactive-accent);
-        transition: width 0.2s ease;
+    /* Cibler la partie remplie */
+    .progress-container > div > div {  /* La barre de progression */
+        background-color: var(--interactive-accent) !important;
+        height: 100% !important;
+        border-radius: 4px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .progress-container:hover > div {
+        height: 10px !important;
+        background-color: var(--background-modifier-border-hover) !important;
+    }
+
+    .pluginflowz-card-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+    }
+
+    .pluginflowz-rating-text {
+        font-size: 14px;
+        color: var(--text-muted);
     }
 
     .pluginflowz-rating-value {
-        font-size: 12px;
-        color: var(--text-muted);
-        min-width: 32px;
+        min-width: 45px;
         text-align: right;
+        font-size: 14px;
+        color: var(--text-muted);
     }
 `;
 

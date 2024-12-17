@@ -261,43 +261,28 @@ export class ViewMode {
            });
 
            const progressContainer = ratingContainer.createDiv('progress-container');
-           const progressBar = progressContainer.createDiv('progress-bar');
-           progressBar.style.width = `${(plugin.rating / 5) * 100}%`;
+           const progressBar = new ProgressBarComponent(progressContainer);
+           
+           // Initialiser la valeur
+           progressBar.setValue(plugin.rating / 5);
 
            const ratingValue = ratingContainer.createEl('span', {
                text: `${plugin.rating}/5`,
                cls: 'pluginflowz-rating-value'
            });
 
-           // Fonction pour mettre à jour le rating
-           const updateRating = async (e: MouseEvent) => {
-               const rect = progressContainer.getBoundingClientRect();
-               const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-               const newRating = Math.round((x / rect.width) * 5);
-               
-               plugin.rating = Math.max(0, Math.min(5, newRating));
-               progressBar.style.width = `${(plugin.rating / 5) * 100}%`;
+           // Écouter les changements
+           progressBar.registerOptionListener(async (value) => {
+               plugin.rating = Math.round(value * 5);
                ratingValue.setText(`${plugin.rating}/5`);
-               
                await Settings.saveSettings(this.settings);
-           };
-
-           // Rendre la progress bar interactive
-           progressContainer.addEventListener('mousemove', (e) => {
-               if (e.buttons === 1) { // Si le bouton gauche est enfoncé
-                   updateRating(e);
-               }
            });
 
-           progressContainer.addEventListener('click', updateRating);
-
-           // Ajouter un style au survol
-           progressContainer.style.cursor = 'pointer';
-           progressContainer.addEventListener('mousemove', (e) => {
+           // Rendre la progress bar interactive
+           progressContainer.addEventListener('click', async (e) => {
                const rect = progressContainer.getBoundingClientRect();
                const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-               const hoverRating = Math.round((x / rect.width) * 5);
-               progressContainer.setAttribute('title', `${hoverRating}/5`);
+               progressBar.setValue(x / rect.width);
            });
        } else {
            // Version List avec Slider
