@@ -49,6 +49,49 @@ styleEl.textContent = `
         border-radius: 5px;
     }
 
+    /* Nouvelle structure de la vue liste */
+    .pluginflowz-plugin-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .pluginflowz-plugin-left {
+        flex: 1;
+    }
+
+    .pluginflowz-plugin-left h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .pluginflowz-plugin-right .setting-item {
+        border: none;
+        padding: 0;
+    }
+
+    .pluginflowz-plugin-bottom-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .pluginflowz-plugin-bottom-row .pluginflowz-plugin-tags {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .pluginflowz-plugin-description {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin: 8px 0;
+    }
+
     /* Mode Cards */
     .pluginflowz-cards-grid {
         display: grid;

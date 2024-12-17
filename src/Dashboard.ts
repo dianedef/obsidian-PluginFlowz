@@ -102,7 +102,6 @@ export class Dashboard extends Component {
     }
 
     private renderPluginList(container: HTMLElement, plugins: IPlugin[]) {
-        
         // Liste des plugins
         const pluginsList = container.createDiv('pluginflowz-plugins-list');
         
@@ -119,57 +118,70 @@ export class Dashboard extends Component {
         plugins.forEach(plugin => {
             const pluginEl = pluginsList.createDiv('pluginflowz-plugin-item');
             
-            // En-tête du plugin
-            const headerEl = pluginEl.createDiv('pluginflowz-plugin-header');
-            new Setting(headerEl)
+            // Ligne du haut : titre à gauche et toggle à droite
+            const topRow = pluginEl.createDiv('pluginflowz-plugin-top-row');
+            
+            // Côté gauche avec titre
+            const leftSide = topRow.createDiv('pluginflowz-plugin-left');
+            leftSide.createEl('h4', { text: plugin.title });
+            
+            // Côté droit avec toggle
+            const rightSide = topRow.createDiv('pluginflowz-plugin-right');
+            new Setting(rightSide)
                 .addToggle(toggle => toggle
                     .setValue(plugin.activate)
                     .onChange(async (value) => {
-                    plugin.activate = value;
-                    const pluginManager = new PluginManager(this.plugin);
-                    await pluginManager.updatePluginNote(plugin);
-                    new Notice(this.translations.t(value ? 
-                        'settings.plugins.activated' : 
-                        'settings.plugins.deactivated'
-                    ).replace('{title}', plugin.title));
+                        plugin.activate = value;
+                        const pluginManager = new PluginManager(this.plugin);
+                        await pluginManager.updatePluginNote(plugin);
+                        new Notice(this.translations.t(value ? 
+                            'settings.plugins.activated' : 
+                            'settings.plugins.deactivated'
+                        ).replace('{title}', plugin.title));
                     })
                 );
-            headerEl.createEl('h4', { text: plugin.title });
             
-            // Tags
+            // Ligne du bas : status sous le titre et tags à droite
+            const bottomRow = pluginEl.createDiv('pluginflowz-plugin-bottom-row');
+            
+            // Status tag à gauche
+            const statusContainer = bottomRow.createDiv('pluginflowz-plugin-status-container');
+            if (plugin.status && plugin.status.length > 0) {
+                new Tag(statusContainer, plugin.status[0], 
+                    () => this.cyclePluginStatus(plugin, statusContainer),
+                    `pluginflowz-tag-status ${plugin.status[0]}`
+                );
+            } else {
+                new Tag(statusContainer, 'exploring', 
+                    () => this.cyclePluginStatus(plugin, statusContainer),
+                    'pluginflowz-tag-status exploring'
+                );
+            }
+            
+            // Tags à droite
             if (plugin.tags.length > 0) {
-                const tagsEl = pluginEl.createDiv('pluginflowz-plugin-tags');
+                const tagsContainer = bottomRow.createDiv('pluginflowz-plugin-tags');
                 plugin.tags.forEach(tag => {
-                    new Tag(tagsEl, tag, 
-                    async () => {
-                        plugin.tags = plugin.tags.filter(t => t !== tag);
-                        await Settings.saveSettings(this.settings);
-                        this.renderContent(container);
-                    },
-                    'pluginflowz-tag-removable'
+                    new Tag(tagsContainer, tag, 
+                        async () => {
+                            plugin.tags = plugin.tags.filter(t => t !== tag);
+                            await Settings.saveSettings(this.settings);
+                            this.renderContent(container);
+                        },
+                        'pluginflowz-tag-removable'
                     );
                 });
             }
             
-            // Description
+            // Description en dessous si elle existe
             if (plugin.description) {
-                pluginEl.createEl('p', { text: plugin.description });
-            }
-            
-            // Statut et notes
-            const infoEl = pluginEl.createDiv('pluginflowz-plugin-info');
-            infoEl.createEl('span', { 
-                text: `Status: ${plugin.status.join(', ')}`,
-                cls: 'pluginflowz-plugin-status'
-            });
-            if (plugin.rating > 0) {
-                infoEl.createEl('span', { 
-                    text: `Rating: ${plugin.rating}/5`,
-                    cls: 'pluginflowz-plugin-rating'
+                pluginEl.createEl('p', { 
+                    text: plugin.description,
+                    cls: 'pluginflowz-plugin-description'
                 });
             }
-
-            // Rating avec slider
+            
+            // Rating avec slider en bas
             this.createRatingControl(pluginEl, plugin, false);
         });
     }
