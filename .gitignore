@@ -2,6 +2,7 @@
 dist/
 build/
 node_modules/
+main.js
 
 # Fichiers de couverture de tests
 coverage/
