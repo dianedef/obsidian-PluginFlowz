@@ -70,38 +70,36 @@ export default class PluginFlowz extends Plugin {
       );
 
       // Menu hover
-      ribbonIcon.addEventListener('mouseenter', (event: MouseEvent) => {
-         const menu = new Menu(this.app);
-         
-         menu.addItem((item) => {
-            item
-               .setTitle(this.translations.t('settings.defaultViewMode.tab'))
-               .setIcon('layout-template')
-               .onClick(async () => {
-                  await this.viewMode.setView('tab');
-               });
+      this.registerDomEvent(ribbonIcon, 'mouseenter', () => {
+         const menu = new Menu();
+
+         const createMenuItem = (title: string, icon: string, mode: TViewMode) => {
+            menu.addItem((item) => {
+               item.setTitle(title)
+                  .setIcon(icon)
+                  .onClick(async () => {
+                     await this.viewMode.setView(mode);
+                  });
+            });
+         };
+
+         createMenuItem("Dashboard Tab", "tab", "tab" as TViewMode);
+         createMenuItem("Dashboard Sidebar", "layout-sidebar-right", "sidebar" as TViewMode);
+         createMenuItem("Dashboard Popup", "layout-top", "popup" as TViewMode);
+
+         const iconRect = ribbonIcon.getBoundingClientRect();
+         menu.showAtPosition({ 
+            x: iconRect.left, 
+            y: iconRect.top - 10
          });
 
-         menu.addItem((item) => {
-            item
-               .setTitle(this.translations.t('settings.defaultViewMode.sidebar'))
-               .setIcon('layout-sidebar-right')
-               .onClick(async () => {
-                  await this.viewMode.setView('sidebar');
-               });
+         // Fermer le menu quand la souris quitte l'icône
+         this.registerDomEvent(ribbonIcon, 'mouseleave', (e: MouseEvent) => {
+            const target = e.relatedTarget as HTMLElement;
+            if (!target?.closest('.menu')) {
+               menu.hide();
+            }
          });
-
-         menu.addItem((item) => {
-            item
-               .setTitle(this.translations.t('settings.defaultViewMode.popup'))
-               .setIcon('layout-dashboard')
-               .onClick(async () => {
-                  await this.viewMode.setView('popup');
-               });
-         });
-
-         const rect = (event.target as HTMLElement).getBoundingClientRect();
-         menu.showAtPosition({ x: rect.right + 5, y: rect.top });
       });
 
       // Écouter les modifications de notes
