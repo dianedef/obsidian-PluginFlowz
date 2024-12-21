@@ -9,19 +9,20 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       formats: ['cjs'],
-      name: 'PluginFlowz'
+      fileName: () => 'main.js'
     },
     rollupOptions: {
       external: ['obsidian'],
       output: {
-        entryFileNames: 'main.js',
+        format: 'cjs',
+        exports: 'default',
         globals: {
           obsidian: 'obsidian'
         }
       }
     },
     emptyOutDir: false,
-    sourcemap: true
+    sourcemap: 'inline'
   },
   resolve: {
     alias: {

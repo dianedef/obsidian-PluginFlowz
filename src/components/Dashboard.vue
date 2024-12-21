@@ -56,8 +56,9 @@
         <template v-for="status in availableStatuses" :key="status">
           <status-tag 
             :status="status"
-            :selected="selectedStatuses.has(status)"
-            @click="toggleStatus(status)"
+            :selected="statusStore.isSelected(status)"
+            :is-filter="true"
+            @filter="statusStore.toggleStatus(status)"
             :disabled="isLoading"
           />
         </template>
@@ -100,6 +101,14 @@
     >
       {{ t('dashboard.noPlugins') }}
     </div>
+
+    <!-- Message si aucun résultat après filtrage -->
+    <div 
+      v-if="plugins.length > 0 && filteredPlugins.length === 0 && !isLoading"
+      class="pluginflowz-no-results"
+    >
+      {{ t('settings.plugins.noResults') }}
+    </div>
   </div>
 </template>
 
@@ -114,6 +123,7 @@ import PluginCards from './PluginCards.vue'
 import { useTranslations } from '../composables/useTranslations'
 import { usePluginManager } from '../composables/usePluginManager'
 import { Settings } from '../Settings'
+import { useStatusStore } from '../stores/useStatusStore'
 
 // Props
 const props = defineProps<{
@@ -123,14 +133,17 @@ const props = defineProps<{
 // Composables
 const { t } = useTranslations()
 const { getAllPlugins, updatePluginNote, deletePluginNote } = usePluginManager()
+const statusStore = useStatusStore()
 
 // État réactif
 const plugins = ref<IPlugin[]>([])
 const searchQuery = ref('')
 const currentViewMode = ref<TDashboardView>('cards')
-const selectedStatuses = ref<Set<TPluginStatus>>(new Set())
 const isLoading = ref(false)
 const showNotes = ref(false)
+
+// Ajouter une ref pour suivre les mises à jour en cours
+const updatingPlugins = ref(new Set<string>())
 
 // Computed properties
 const availableStatuses = computed<TPluginStatus[]>(() => 
@@ -141,6 +154,7 @@ const uniqueTags = computed(() =>
   [...new Set(plugins.value.flatMap(p => p.tags))]
 )
 
+// Modifier la computed property filteredPlugins pour enlever la gestion temporaire
 const filteredPlugins = computed(() => {
   return plugins.value.filter(plugin => {
     // Filtre par recherche
@@ -151,8 +165,8 @@ const filteredPlugins = computed(() => {
 
     // Filtre par status
     const matchesStatus = 
-      selectedStatuses.value.size === 0 || 
-      plugin.status.some(s => selectedStatuses.value.has(s as TPluginStatus))
+      statusStore.selectedStatuses.length === 0 || 
+      plugin.status.some(s => statusStore.selectedStatuses.includes(s as TPluginStatus))
 
     return matchesSearch && matchesStatus
   })
@@ -171,14 +185,6 @@ const toggleView = () => {
   currentViewMode.value = currentViewMode.value === 'cards' ? 'list' : 'cards'
 }
 
-const toggleStatus = (status: TPluginStatus) => {
-  if (selectedStatuses.value.has(status)) {
-    selectedStatuses.value.delete(status)
-  } else {
-    selectedStatuses.value.add(status)
-  }
-}
-
 const handleGlobalToggle = async (state: 'left' | 'middle' | 'right') => {
   const newValue = state === 'right'
   isLoading.value = true
@@ -194,16 +200,41 @@ const handleGlobalToggle = async (state: 'left' | 'middle' | 'right') => {
   }
 }
 
+// Modifier handlePluginUpdate pour gérer les erreurs et ajouter un délai
 const handlePluginUpdate = async (plugin: IPlugin) => {
+  // Si le plugin est déjà en cours de mise à jour, ignorer
+  if (updatingPlugins.value.has(plugin.title)) {
+    console.log('Plugin déjà en cours de mise à jour:', plugin.title)
+    return
+  }
+
   const index = plugins.value.findIndex(p => p.title === plugin.title)
   if (index !== -1) {
-    plugins.value[index] = plugin
+    // Marquer le plugin comme en cours de mise à jour
+    updatingPlugins.value.add(plugin.title)
+    
     try {
+      // Mettre à jour l'état local immédiatement
+      plugins.value[index] = plugin
+
+      // Attendre un court délai avant de sauvegarder
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Sauvegarder dans Obsidian
       await updatePluginNote(plugin)
     } catch (error) {
       console.error('Erreur lors de la mise à jour du plugin:', error)
       // Restaurer l'état précédent en cas d'erreur
       plugins.value[index] = { ...plugins.value[index] }
+      
+      // Si l'erreur est "File already exists", réessayer après un délai plus long
+      if (error.message?.includes('File already exists')) {
+        console.log('Réessai de la mise à jour dans 500ms...')
+        setTimeout(() => handlePluginUpdate(plugin), 500)
+      }
+    } finally {
+      // Retirer le plugin de la liste des mises à jour en cours
+      updatingPlugins.value.delete(plugin.title)
     }
   }
 }
@@ -257,35 +288,11 @@ watch(currentViewMode, async (newMode) => {
 
 // Charger les plugins au montage
 onMounted(async () => {
+  await statusStore.initializeStore()
   await loadPlugins()
-})
-
-// Exposer les méthodes nécessaires
-defineExpose({
-  refresh: loadPlugins
 })
 
 const toggleNotesDisplay = () => {
   showNotes.value = !showNotes.value
 }
 </script> 
-
-<style scoped>
-.pluginflowz-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.pluginflowz-header-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.pluginflowz-view-button {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-</style> 

@@ -1,40 +1,5 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import type { DefaultSettings } from './types';
-
-export const DEFAULT_SETTINGS: DefaultSettings = {
-    language: 'fr',
-    currentMode: 'tab',
-    activeLeafId: null,
-    enableAutoUpdate: true,
-    notesFolder: 'Plugins',
-    template: '',
-    defaultViewMode: 'cards',
-    selectedStatuses: []
-};
-
-export class Settings {
-    private static plugin: Plugin;
-
-    static async initialize(plugin: Plugin) {
-        this.plugin = plugin;
-    }
-
-    static async loadSettings(): Promise<DefaultSettings> {
-        if (!this.plugin) {
-            throw new Error('[PluginFlowz] Settings non initialisé');
-        }
-        return Object.assign({}, DEFAULT_SETTINGS, await this.plugin.loadData());
-    }
-
-    static async saveSettings(settings: Partial<DefaultSettings>): Promise<void> {
-        if (!this.plugin) {
-            throw new Error('[PluginFlowz] Settings non initialisé');
-        }
-        const currentSettings = await this.loadSettings();
-        const newSettings = Object.assign({}, currentSettings, settings);
-        await this.plugin.saveData(newSettings);
-    }
-}
+import { Settings, DEFAULT_SETTINGS } from './Settings';
 
 export class SettingsTab extends PluginSettingTab {
     plugin: Plugin;
@@ -83,4 +48,4 @@ export class SettingsTab extends PluginSettingTab {
                     });
                 }));
     }
-}
+} 

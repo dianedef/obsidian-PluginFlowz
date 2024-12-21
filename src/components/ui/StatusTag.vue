@@ -1,33 +1,63 @@
 <template>
   <div 
     class="pluginflowz-tag pluginflowz-tag-status"
-    :class="[status, { selected }]"
-    @click="$emit('click')"
+    :class="[status, { selected, disabled }]"
+    @click="!disabled && handleClick()"
+    role="button"
+    tabindex="0"
+    @keyup.enter="!disabled && handleClick()"
+    @keyup.space="!disabled && handleClick()"
   >
     {{ t(`settings.plugins.status.${status}`) }}
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
 import type { TPluginStatus } from '../../types'
 import { useTranslations } from '../../composables/useTranslations'
 
-export default defineComponent({
-  name: 'StatusTag',
-  props: {
-    status: {
-      type: String as () => TPluginStatus,
-      required: true
-    },
-    selected: {
-      type: Boolean,
-      default: false
-    }
-  },
-  setup() {
-    const { t } = useTranslations()
-    return { t }
+const props = defineProps<{
+  status: TPluginStatus
+  selected?: boolean
+  disabled?: boolean
+  isFilter?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'click'): void
+  (e: 'filter'): void
+}>()
+
+const { t } = useTranslations()
+
+function handleClick() {
+  if (props.isFilter) {
+    emit('filter')
+  } else {
+    emit('click')
   }
-})
-</script> 
+}
+</script>
+
+<style scoped>
+.pluginflowz-tag-status {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.pluginflowz-tag-status:hover:not(.disabled) {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.pluginflowz-tag-status.selected {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.pluginflowz-tag-status.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style> 

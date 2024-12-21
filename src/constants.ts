@@ -1,1 +1,1 @@
-export const CONSTANTE = "CONSTANTE";
+export const VIEW_TYPE_PLUGINFLOWZ = "pluginflowz-view";

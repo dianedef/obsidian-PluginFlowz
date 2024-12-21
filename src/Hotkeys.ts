@@ -13,11 +13,16 @@ export class Hotkeys {
 
    constructor(
       private plugin: Plugin,
-      private settings: Settings,
+      private settings: typeof Settings,
       private viewMode: ViewMode
    ) {
-      // S'assurer que viewMode est bien initialisé
-      if (!viewMode || typeof viewMode.setView !== 'function') {
+      if (!plugin) {
+         throw new Error('[Hotkeys] Plugin non fourni');
+      }
+      if (!settings) {
+         throw new Error('[Hotkeys] Settings non fourni');
+      }
+      if (!viewMode || !viewMode.setView) {
          throw new Error('[Hotkeys] ViewMode non initialisé correctement');
       }
    }
@@ -30,7 +35,9 @@ export class Hotkeys {
          icon: 'layout-grid',
          callback: async () => {
             try {
-               const mode = await Settings.getViewMode();
+               // Utiliser le mode actuel ou 'popup' par défaut
+               const settings = await this.settings.loadSettings();
+               const mode = settings.currentMode || 'popup';
                await this.viewMode.setView(mode);
             } catch (error) {
                console.error('[Hotkeys]', error);

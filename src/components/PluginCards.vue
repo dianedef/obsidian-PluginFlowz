@@ -103,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue'
+import { defineProps, defineEmits, ref, onMounted, onUnmounted } from 'vue'
 import type { IPlugin, TPluginStatus } from '../types'
 import StatusTag from './ui/StatusTag.vue'
 import Tag from './ui/Tag.vue'
@@ -219,3 +219,9 @@ const deletePlugin = async () => {
   showOptionsMenu.value = false
 }
 </script> 
+
+<style scoped>
+.pluginflowz-card.editing-status {
+  outline: 2px solid var(--interactive-accent);
+}
+</style> 

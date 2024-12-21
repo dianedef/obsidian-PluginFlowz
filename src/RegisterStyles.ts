@@ -3,6 +3,37 @@ const styleEl = document.createElement('style');
 styleEl.id = 'pluginflowz-styles';
 styleEl.textContent = `
 
+    .pluginflowz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    }
+
+    .pluginflowz-header-buttons {
+    display: flex;
+    gap: 0.5rem;
+    }
+
+    .pluginflowz-view-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    }
+
+    /* ===== No Plugins ===== */
+    .pluginflowz-no-plugins,
+    .pluginflowz-no-results {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    width: 100%;
+    }
+
     .pluginflowz-plugin-note {
         margin-top: 1rem;
         padding: 1rem;

@@ -4,6 +4,8 @@ import type { TViewMode } from '../types'
 import { Settings } from '../Settings'
 import { createApp } from 'vue'
 import Dashboard from '../components/Dashboard.vue'
+import { pinia } from '../stores'
+import { VIEW_TYPE_PLUGINFLOWZ } from '../constants'
 
 class CustomModal {
     public vueApp: ReturnType<typeof createApp> | null = null;
@@ -140,8 +142,10 @@ class CustomModal {
     }
 
     public open() {
-        // Monter l'application Vue
-        this.vueApp = createApp(Dashboard);
+        // Monter l'application Vue avec Pinia
+        const app = createApp(Dashboard);
+        app.use(pinia);
+        this.vueApp = app;
         this.vueApp.mount(this.modalContent.querySelector('.modal-vue-container')!);
 
         // Ajouter la modale au DOM
@@ -182,15 +186,24 @@ const state = ref<ViewModeState>({
 
 export function useViewMode() {
     const initializeViewMode = async (p: Plugin) => {
-        state.value.plugin = p
+        if (!p) {
+            throw new Error('[PluginFlowz] Plugin non fourni pour l\'initialisation du ViewMode');
+        }
+
+        state.value.plugin = p;
         
-        // Charger le mode depuis les settings
         try {
-            const settings = await Settings.loadSettings()
-            state.value.currentMode = settings.currentMode || 'tab'
-            state.value.activeLeafId = settings.activeLeafId || null
+            const settings = await Settings.loadSettings();
+            state.value.currentMode = settings.currentMode || 'tab';
+            state.value.activeLeafId = settings.activeLeafId || null;
+
+            // Vérifier que l'initialisation est complète
+            if (!state.value.plugin || state.value.currentMode === undefined) {
+                throw new Error('[PluginFlowz] ViewMode non initialisé correctement');
+            }
         } catch (error) {
-            console.warn('[PluginFlowz] Erreur lors du chargement des settings:', error)
+            console.error('[PluginFlowz] Erreur lors de l\'initialisation du ViewMode:', error);
+            throw error;
         }
     }
 
@@ -217,13 +230,24 @@ export function useViewMode() {
             // Créer la nouvelle vue selon le mode
             switch (mode) {
                 case 'tab':
-                    // Toujours créer un nouvel onglet dans la zone principale
-                    leaf = workspace.getLeaf('tab', 'vertical');
-                    break;
+                    try {
+                        // Essayer d'abord de créer un onglet dans la zone principale
+                        leaf = workspace.getLeaf('tab')
+                    } catch (error) {
+                        console.warn('[PluginFlowz] Impossible de créer un onglet directement, tentative alternative...')
+                        // Si ça échoue, créer un nouvel onglet à côté de l'onglet actif
+                        if (workspace.activeLeaf) {
+                            leaf = workspace.createLeafBySplit(workspace.activeLeaf)
+                        } else {
+                            // Si pas d'onglet actif, créer un nouvel onglet
+                            leaf = workspace.getLeaf(true)
+                        }
+                    }
+                    break
                     
                 case 'sidebar':
-                    leaf = workspace.getRightLeaf(false);
-                    break;
+                    leaf = workspace.getRightLeaf(false)
+                    break
                     
                 case 'popup':
                     // Créer et ouvrir la modale

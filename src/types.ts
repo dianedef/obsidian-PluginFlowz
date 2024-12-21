@@ -27,6 +27,14 @@ export interface IPluginData {
     groups: TPluginGroup[];
 }
 
+export interface ISettings {
+    currentMode: TViewMode
+    activeLeafId: string | null
+    plugins: IPlugin[]
+    groups: string[]
+    selectedStatuses?: TPluginStatus[]
+}
+
 export interface DefaultSettings {
    language: string;
    currentMode: TViewMode;
