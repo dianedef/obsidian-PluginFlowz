@@ -134,15 +134,42 @@ const selectedPluginForOptions = ref<IPlugin | null>(null)
 const optionsMenuPosition = ref({ x: 0, y: 0 })
 
 // Méthodes
-const handleToggle = (plugin: IPlugin, value: boolean) => {
-  emit('update', { ...plugin, activate: value })
+const handleToggle = async (plugin: IPlugin, value: boolean) => {
+  try {
+    // Mettre à jour à la fois l'état d'activation et le statut
+    const updatedPlugin = { 
+      ...plugin, 
+      activate: value,
+      status: [value ? 'active' as TPluginStatus : 'inactive' as TPluginStatus]
+    }
+    await emit('update', updatedPlugin)
+  } catch (error) {
+    console.error('Erreur lors du toggle:', error)
+    // Forcer la mise à jour de l'état local pour refléter l'état réel
+    plugin.activate = !value
+  }
 }
 
-const cycleStatus = (plugin: IPlugin) => {
+const cycleStatus = async (plugin: IPlugin) => {
   const statuses: TPluginStatus[] = ['exploring', 'active', 'inactive', 'ignoring']
   const currentIndex = statuses.indexOf(plugin.status[0] as TPluginStatus)
   const nextIndex = (currentIndex + 1) % statuses.length
-  emit('update', { ...plugin, status: [statuses[nextIndex]] })
+  const newStatus = statuses[nextIndex]
+  
+  // Créer une copie du plugin avec le nouveau statut
+  const updatedPlugin = { 
+    ...plugin, 
+    status: [newStatus],
+    // Si le nouveau statut est 'active', on active le plugin
+    // Si le nouveau statut est 'inactive', on désactive le plugin
+    // Pour les autres statuts, on garde l'état actuel
+    activate: newStatus === 'active' ? true : 
+             newStatus === 'inactive' ? false : 
+             plugin.activate
+  }
+
+  // Émettre la mise à jour
+  await emit('update', updatedPlugin)
 }
 
 const removeTag = (plugin: IPlugin, tagToRemove: string) => {

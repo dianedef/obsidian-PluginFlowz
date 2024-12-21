@@ -699,7 +699,7 @@ styleEl.textContent = `
 
     .tri-state-slider.middle {
         transform: translateX(28px);
-        background-color: var(--background-modifier-border-hover);
+        background-color: var(--interactive-accent);
     }
 
     .tri-state-slider.right {
@@ -731,12 +731,12 @@ styleEl.textContent = `
         justify-content: center;
     }
 
-    .tri-state-toggle:hover .tri-state-slider {
-        background-color: var(--interactive-accent-hover);
-    }
-
     .tri-state-toggle:hover .tri-state-slider.left {
         background-color: var(--background-modifier-error-hover);
+    }
+
+    .tri-state-toggle:hover .tri-state-slider.middle {
+        background-color: var(--interactive-accent-hover);
     }
 
     .tri-state-toggle:hover .tri-state-slider.right {

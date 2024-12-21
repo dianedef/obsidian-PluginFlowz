@@ -113,7 +113,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, reactive, nextTick } from 'vue'
+import { Notice } from 'obsidian'
+import type { Plugin } from 'obsidian'
 import type { IPlugin, TPluginStatus, TDashboardView } from '../types'
 import TriStateToggle from './ui/TriStateToggle.vue'
 import StatusTag from './ui/StatusTag.vue'
@@ -132,7 +134,7 @@ const props = defineProps<{
 
 // Composables
 const { t } = useTranslations()
-const { getAllPlugins, updatePluginNote, deletePluginNote } = usePluginManager()
+const { getAllPlugins, updatePluginNote, deletePluginNote, getPluginManager } = usePluginManager()
 const statusStore = useStatusStore()
 
 // État réactif
@@ -188,19 +190,68 @@ const toggleView = () => {
 const handleGlobalToggle = async (state: 'left' | 'middle' | 'right') => {
   const newValue = state === 'right'
   isLoading.value = true
+  const errors: string[] = []
+
   try {
-    for (const plugin of plugins.value) {
-      plugin.activate = newValue
-      await updatePluginNote(plugin)
+    // Créer une copie des plugins pour les mises à jour
+    const updatedPlugins = [...plugins.value]
+    
+    // Utiliser Promise.allSettled pour continuer même en cas d'erreur
+    const updatePromises = updatedPlugins
+      .filter(plugin => {
+        const shouldUpdate = plugin.id !== 'pluginflowz'
+        console.log(`Plugin ${plugin.id}: ${shouldUpdate ? 'à mettre à jour' : 'ignoré'}`)
+        return shouldUpdate
+      })
+      .map(async (plugin) => {
+        try {
+          console.log(`Tentative de ${newValue ? 'activation' : 'désactivation'} de ${plugin.id}`)
+          // Mettre à jour à la fois l'état d'activation et le statut
+          const updatedPlugin = { 
+            ...plugin, 
+            activate: newValue,
+            status: [newValue ? 'active' as TPluginStatus : 'inactive' as TPluginStatus]
+          }
+          await updatePluginNote(updatedPlugin)
+          
+          // Mettre à jour l'état dans la copie
+          const index = updatedPlugins.findIndex(p => p.id === plugin.id)
+          if (index !== -1) {
+            updatedPlugins[index] = updatedPlugin
+          }
+          
+          return { success: true, plugin: updatedPlugin }
+        } catch (error) {
+          console.error(`Erreur pour ${plugin.id}:`, error)
+          errors.push(`${plugin.title}: ${error.message}`)
+          return { success: false, plugin, error }
+        }
+      })
+
+    await Promise.allSettled(updatePromises)
+    
+    // Mettre à jour l'état global avec la copie mise à jour
+    plugins.value = updatedPlugins.map(plugin => ({
+      ...plugin,
+      activate: plugin.id === 'pluginflowz' ? true : plugin.activate
+    }))
+
+    // Afficher un résumé des erreurs s'il y en a
+    if (errors.length > 0) {
+      console.error('Erreurs lors de la mise à jour globale:', errors)
+      new Notice(`${errors.length} plugins n'ont pas pu être ${newValue ? 'activés' : 'désactivés'}. Consultez la console pour plus de détails.`, 5000)
+    } else {
+      new Notice(`Tous les plugins ont été ${newValue ? 'activés' : 'désactivés'} avec succès.`)
     }
   } catch (error) {
     console.error('Erreur lors de la mise à jour globale:', error)
+    new Notice('Une erreur est survenue lors de la mise à jour globale.')
   } finally {
     isLoading.value = false
   }
 }
 
-// Modifier handlePluginUpdate pour gérer les erreurs et ajouter un délai
+// Modifier handlePluginUpdate pour utiliser la réactivité de Vue
 const handlePluginUpdate = async (plugin: IPlugin) => {
   // Si le plugin est déjà en cours de mise à jour, ignorer
   if (updatingPlugins.value.has(plugin.title)) {
@@ -214,23 +265,26 @@ const handlePluginUpdate = async (plugin: IPlugin) => {
     updatingPlugins.value.add(plugin.title)
     
     try {
-      // Mettre à jour l'état local immédiatement
-      plugins.value[index] = plugin
-
-      // Attendre un court délai avant de sauvegarder
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Sauvegarder l'état précédent
+      const previousState = { ...plugins.value[index] }
+      
+      // Mettre à jour l'état local
+      plugins.value[index] = { ...plugin }
+      
+      // Utiliser nextTick pour s'assurer que Vue a fini de mettre à jour le DOM
+      await nextTick()
       
       // Sauvegarder dans Obsidian
       await updatePluginNote(plugin)
     } catch (error) {
       console.error('Erreur lors de la mise à jour du plugin:', error)
       // Restaurer l'état précédent en cas d'erreur
-      plugins.value[index] = { ...plugins.value[index] }
-      
-      // Si l'erreur est "File already exists", réessayer après un délai plus long
-      if (error.message?.includes('File already exists')) {
-        console.log('Réessai de la mise à jour dans 500ms...')
-        setTimeout(() => handlePluginUpdate(plugin), 500)
+      if (error.message?.includes('ENOENT')) {
+        // Si c'est une erreur de fichier manquant, forcer l'état à false
+        plugins.value[index] = { ...plugins.value[index], activate: false }
+      } else {
+        // Pour les autres erreurs, restaurer l'état précédent
+        plugins.value[index] = { ...plugins.value[index], activate: !plugin.activate }
       }
     } finally {
       // Retirer le plugin de la liste des mises à jour en cours

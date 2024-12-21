@@ -109,8 +109,20 @@ const showAddTagModal = ref(false)
 const selectedPluginForTag = ref<IPlugin | null>(null)
 
 // Méthodes
-const handleToggle = (plugin: IPlugin, value: boolean) => {
-  emit('update', { ...plugin, activate: value })
+const handleToggle = async (plugin: IPlugin, value: boolean) => {
+  try {
+    // Mettre à jour à la fois l'état d'activation et le statut
+    const updatedPlugin = { 
+      ...plugin, 
+      activate: value,
+      status: [value ? 'active' as TPluginStatus : 'inactive' as TPluginStatus]
+    }
+    await emit('update', updatedPlugin)
+  } catch (error) {
+    console.error('Erreur lors du toggle:', error)
+    // Forcer la mise à jour de l'état local pour refléter l'état réel
+    plugin.activate = !value
+  }
 }
 
 const cycleStatus = (plugin: IPlugin) => {
