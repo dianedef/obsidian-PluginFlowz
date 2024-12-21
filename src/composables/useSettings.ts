@@ -216,13 +216,20 @@ export function useSettings() {
       const pluginIndex = currentSettings.plugins.findIndex(p => p.id === pluginId)
       
       if (pluginIndex !== -1) {
-         const updatedPlugin = {
-            ...currentSettings.plugins[pluginIndex],
-            ...updates
+         try {
+            const updatedPlugin = {
+               ...currentSettings.plugins[pluginIndex],
+               ...updates
+            }
+            currentSettings.plugins[pluginIndex] = updatedPlugin
+            await saveSettings({ plugins: currentSettings.plugins })
+            await updatePluginNote(updatedPlugin)
+         } catch (error) {
+            console.error(`Erreur lors de la mise à jour du plugin ${pluginId}:`, error)
+            throw error instanceof Error ? error : new Error('Erreur lors de la mise à jour du plugin')
          }
-         currentSettings.plugins[pluginIndex] = updatedPlugin
-         await saveSettings({ plugins: currentSettings.plugins })
-         await updatePluginNote(updatedPlugin)
+      } else {
+         throw new Error(`Plugin ${pluginId} non trouvé`)
       }
    }
 

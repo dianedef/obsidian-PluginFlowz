@@ -1,5 +1,13 @@
 <template>
   <div class="rating-control">
+    <span 
+      v-if="showReset" 
+      class="reset" 
+      @click="updateRating(0)"
+      :title="t('settings.plugins.rating.reset')"
+    >
+      ×
+    </span>
     <div 
       class="stars"
       :title="t('settings.plugins.rating.tooltip')"
@@ -16,9 +24,6 @@
         ★
       </span>
     </div>
-    <span v-if="showReset" class="reset" @click="updateRating(0)">
-      {{ t('settings.plugins.delete.cancel') }}
-    </span>
   </div>
 </template>
 
@@ -42,4 +47,4 @@ const hoverRating = ref(0)
 const updateRating = (value: number) => {
   emit('update:modelValue', value)
 }
-</script> 
+</script>

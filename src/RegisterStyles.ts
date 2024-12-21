@@ -101,6 +101,30 @@ styleEl.textContent = `
         gap: 8px;
     }
 
+    /* Suppression du ::before pour la croix de la modale */
+    .modal-close-button::before {
+        content: none;
+    }
+
+    .modal-close-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 1.6em;
+        line-height: 1;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .modal-close-button:hover {
+        color: var(--text-error);
+        background: var(--background-modifier-error);
+    }
+
     /* ===== Form Elements ===== */
     .modal input {
         width: 100%;
@@ -882,11 +906,14 @@ styleEl.textContent = `
     .reset {
         cursor: pointer;
         color: var(--text-muted);
-        font-size: 0.8em;
+        font-size: 1.2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .reset:hover {
-        color: var(--text-normal);
+        color: var(--text-selected);
     }
 
     /* ===== Options Menu ===== */

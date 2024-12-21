@@ -295,8 +295,12 @@ const toggleActivation = async (plugin: IPlugin) => {
       'settings.plugins.deactivated'
     ).replace('{title}', plugin.title))
   } catch (error) {
-    console.error(error)
-    new Notice(t('notices.error'))
+    console.error('Erreur lors de l\'activation/désactivation du plugin:', error)
+    // Afficher le message d'erreur spécifique ou un message par défaut
+    const errorMessage = error instanceof Error ? error.message : t('notices.error')
+    new Notice(`Erreur: ${errorMessage}`, 5000) // Afficher pendant 5 secondes
+    // Remettre le toggle dans son état d'origine en cas d'erreur
+    plugin.activate = !plugin.activate
   }
 }
 
