@@ -69,6 +69,16 @@
           </button>
         </div>
       </div>
+
+      <!-- Note du plugin -->
+      <div 
+        v-if="showNotes && plugin.note"
+        class="pluginflowz-card-note"
+      >
+        <div class="note-content">
+          {{ plugin.note }}
+        </div>
+      </div>
     </div>
 
     <!-- Modal pour l'ajout de tag -->
@@ -105,6 +115,7 @@ import OptionsMenu from './ui/OptionsMenu.vue'
 
 const props = defineProps<{
   plugins: IPlugin[]
+  showNotes?: boolean
 }>()
 
 const emit = defineEmits<{

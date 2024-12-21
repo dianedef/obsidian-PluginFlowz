@@ -1,36 +1,168 @@
 import { ref } from 'vue'
-import { Plugin, WorkspaceLeaf, Modal } from 'obsidian'
+import { Plugin, WorkspaceLeaf } from 'obsidian'
 import type { TViewMode } from '../types'
 import { Settings } from '../Settings'
 import { createApp } from 'vue'
 import Dashboard from '../components/Dashboard.vue'
 
-class DashboardModal extends Modal {
+class CustomModal {
     private vueApp: ReturnType<typeof createApp> | null = null;
+    private container: HTMLDivElement;
+    private modalContent: HTMLDivElement;
+    private app: Plugin['app'];
 
     constructor(plugin: Plugin) {
-        super(plugin.app);
+        this.app = plugin.app;
+        
+        // Créer le conteneur modal
+        this.container = document.createElement('div');
+        this.container.addClass('modal-container');
+        this.container.addClass('pluginflowz-modal');
+        this.container.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+
+        // Créer le contenu modal
+        this.modalContent = document.createElement('div');
+        this.modalContent.addClass('modal-content');
+        this.modalContent.style.cssText = `
+            background: var(--background-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        `;
+
+        // Ajouter une barre de titre
+        const titleBar = document.createElement('div');
+        titleBar.addClass('modal-title-bar');
+        titleBar.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--background-modifier-border);
+        `;
+
+        const title = document.createElement('h2');
+        title.textContent = 'Plugin Dashboard';
+        title.style.cssText = `
+            margin: 0;
+            font-size: 1.5em;
+            color: var(--text-normal);
+        `;
+
+        const closeButton = document.createElement('button');
+        closeButton.addClass('modal-close-button');
+        closeButton.innerHTML = '×';
+        closeButton.style.cssText = `
+            background: transparent;
+            border: none;
+            border-radius: 50%;
+            color: var(--text-normal);
+            font-size: 24px;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+        `;
+        closeButton.addEventListener('mouseover', () => {
+            closeButton.style.backgroundColor = 'var(--background-modifier-hover)';
+        });
+        closeButton.addEventListener('mouseout', () => {
+            closeButton.style.backgroundColor = 'transparent';
+        });
+        closeButton.addEventListener('click', () => this.close());
+
+        titleBar.appendChild(title);
+        titleBar.appendChild(closeButton);
+        this.modalContent.appendChild(titleBar);
+
+        // Créer le conteneur pour le contenu Vue
+        const vueContainer = document.createElement('div');
+        vueContainer.addClass('modal-vue-container');
+        vueContainer.style.cssText = `
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin: 0 -10px;
+            padding: 0 10px;
+        `;
+        this.modalContent.appendChild(vueContainer);
+
+        this.container.appendChild(this.modalContent);
+
+        // Gestionnaire d'événements pour Échap
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                this.close();
+            }
+        };
+
+        // Gestionnaire pour le clic en dehors
+        this.container.addEventListener('mousedown', (e) => {
+            if (e.target === this.container) {
+                this.close();
+            }
+        });
+
+        // Ajouter/retirer les événements
+        document.addEventListener('keydown', handleKeyDown);
+        this.container.addEventListener('remove', () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        });
     }
 
-    onOpen() {
-        const { contentEl } = this;
-        contentEl.empty();
-        
-        // Créer le conteneur pour Vue
-        const mountPoint = contentEl.createDiv({ cls: 'pluginflowz-modal-container' });
-        
-        // Créer et monter l'application Vue
+    open() {
+        // Monter l'application Vue
         this.vueApp = createApp(Dashboard);
-        this.vueApp.mount(mountPoint);
+        this.vueApp.mount(this.modalContent.querySelector('.modal-vue-container')!);
+
+        // Ajouter la modale au DOM
+        document.body.appendChild(this.container);
     }
 
-    onClose() {
+    close() {
+        // Démonter Vue
         if (this.vueApp) {
             this.vueApp.unmount();
             this.vueApp = null;
         }
-        const { contentEl } = this;
-        contentEl.empty();
+
+        // Retirer du DOM
+        this.container.remove();
+
+        // Restaurer le focus sur l'app
+        const mainContainer = this.app.workspace.containerEl;
+        if (mainContainer) {
+            mainContainer.focus();
+        }
     }
 }
 
@@ -38,7 +170,7 @@ interface ViewModeState {
     plugin: Plugin | null;
     currentMode: TViewMode;
     activeLeafId: string | null;
-    modal: DashboardModal | null;
+    modal: CustomModal | null;
 }
 
 const state = ref<ViewModeState>({
@@ -94,8 +226,22 @@ export function useViewMode() {
                     
                 case 'popup':
                     // Créer et ouvrir la modale
-                    state.value.modal = new DashboardModal(state.value.plugin)
-                    state.value.modal.open()
+                    const modal = new CustomModal(state.value.plugin)
+                    state.value.modal = modal
+                    
+                    // Ajouter un gestionnaire pour nettoyer l'état quand la modale est fermée
+                    const originalOnClose = modal.close.bind(modal)
+                    modal.close = () => {
+                        if (modal.vueApp) {
+                            modal.vueApp.unmount();
+                            modal.vueApp = null;
+                        }
+                        modal.modalContent.empty();
+                        state.value.modal = null;
+                        originalOnClose();
+                    }
+                    
+                    modal.open()
                     break
                     
                 default:

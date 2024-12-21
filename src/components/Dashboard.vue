@@ -23,13 +23,23 @@
         />
       </div>
       
-      <button 
-        class="pluginflowz-view-button"
-        @click="toggleView"
-        :disabled="isLoading"
-      >
-        {{ t(currentViewMode === 'cards' ? 'dashboard.listView' : 'dashboard.cardView') }}
-      </button>
+      <div class="pluginflowz-header-buttons">
+        <button 
+          class="pluginflowz-view-button"
+          @click="toggleView"
+          :disabled="isLoading"
+        >
+          {{ t(currentViewMode === 'cards' ? 'dashboard.listView' : 'dashboard.cardView') }}
+        </button>
+
+        <button 
+          class="pluginflowz-view-button"
+          @click="toggleNotesDisplay"
+          :disabled="isLoading"
+        >
+          {{ t(showNotes ? 'dashboard.hideNotes' : 'dashboard.showNotes') }}
+        </button>
+      </div>
     </div>
 
     <!-- Filtres -->
@@ -69,6 +79,7 @@
     <plugin-list
       v-if="currentViewMode === 'list'"
       :plugins="filteredPlugins"
+      :show-notes="showNotes"
       @update="handlePluginUpdate"
       @delete="handlePluginDelete"
       :disabled="isLoading"
@@ -76,6 +87,7 @@
     <plugin-cards
       v-else
       :plugins="filteredPlugins"
+      :show-notes="showNotes"
       @update="handlePluginUpdate"
       @delete="handlePluginDelete"
       :disabled="isLoading"
@@ -103,6 +115,11 @@ import { useTranslations } from '../composables/useTranslations'
 import { usePluginManager } from '../composables/usePluginManager'
 import { Settings } from '../Settings'
 
+// Props
+const props = defineProps<{
+  onLoaded?: (plugins: IPlugin[]) => void
+}>()
+
 // Composables
 const { t } = useTranslations()
 const { getAllPlugins, updatePluginNote, deletePluginNote } = usePluginManager()
@@ -113,6 +130,7 @@ const searchQuery = ref('')
 const currentViewMode = ref<TDashboardView>('cards')
 const selectedStatuses = ref<Set<TPluginStatus>>(new Set())
 const isLoading = ref(false)
+const showNotes = ref(false)
 
 // Computed properties
 const availableStatuses = computed<TPluginStatus[]>(() => 
@@ -203,12 +221,28 @@ const filterByTag = (tag: string) => {
   searchQuery.value = tag
 }
 
-const loadPlugins = async () => {
+const loadPlugins = async (retryCount = 0, maxRetries = 3) => {
   isLoading.value = true
   try {
     plugins.value = await getAllPlugins()
+    if (plugins.value.length === 0 && retryCount < maxRetries) {
+      // Si aucun plugin n'est chargé et qu'on n'a pas dépassé le nombre max de tentatives
+      console.log(`Tentative ${retryCount + 1}/${maxRetries} de chargement des plugins...`)
+      // Attendre 500ms avant de réessayer
+      setTimeout(() => loadPlugins(retryCount + 1, maxRetries), 500)
+      return
+    }
+    // Si on a des plugins, appeler la callback onLoaded
+    if (plugins.value.length > 0 && props.onLoaded) {
+      props.onLoaded(plugins.value)
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des plugins:', error)
+    if (retryCount < maxRetries) {
+      // En cas d'erreur, réessayer également
+      setTimeout(() => loadPlugins(retryCount + 1, maxRetries), 500)
+      return
+    }
   } finally {
     isLoading.value = false
   }
@@ -230,89 +264,28 @@ onMounted(async () => {
 defineExpose({
   refresh: loadPlugins
 })
-</script>
+
+const toggleNotesDisplay = () => {
+  showNotes.value = !showNotes.value
+}
+</script> 
 
 <style scoped>
-.pluginflowz-dashboard-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  position: relative;
-  min-height: 200px;
-}
-
-.pluginflowz-loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(var(--background-primary-rgb), 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-
-.pluginflowz-loading-spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-accent);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--background-modifier-border);
-  border-top: 4px solid var(--text-accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .pluginflowz-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  margin-bottom: 1rem;
 }
 
-.pluginflowz-search {
-  flex: 1;
-}
-
-.pluginflowz-search-input {
-  width: 100%;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid var(--background-modifier-border);
-}
-
-.pluginflowz-filters {
+.pluginflowz-header-buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
+  gap: 0.5rem;
 }
 
-.pluginflowz-no-plugins {
-  text-align: center;
-  color: var(--text-muted);
-  padding: 32px;
-}
-
-/* Styles pour les éléments désactivés */
-.pluginflowz-search-input:disabled,
-.pluginflowz-view-button:disabled,
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.pluginflowz-view-button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style> 

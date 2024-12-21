@@ -62,6 +62,16 @@
           :title="t('settings.plugins.options.rating')"
         />
       </div>
+
+      <!-- Note du plugin -->
+      <div 
+        v-if="showNotes && plugin.note"
+        class="pluginflowz-plugin-note"
+      >
+        <div class="note-content">
+          {{ plugin.note }}
+        </div>
+      </div>
     </div>
     
     <!-- Modal pour l'ajout de tag -->
@@ -85,6 +95,7 @@ import { useTranslations } from '../composables/useTranslations'
 
 const props = defineProps<{
   plugins: IPlugin[]
+  showNotes?: boolean
 }>()
 
 const emit = defineEmits<{

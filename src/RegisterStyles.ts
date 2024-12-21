@@ -2,20 +2,97 @@ export function registerStyles() {
 const styleEl = document.createElement('style');
 styleEl.id = 'pluginflowz-styles';
 styleEl.textContent = `
+
+    .pluginflowz-plugin-note {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: var(--background-secondary);
+        border-radius: 4px;
+        margin-left: 1rem;
+    }
+
+    .note-content {
+        font-size: 0.9em;
+        line-height: 1.4;
+        white-space: pre-wrap;
+    }
+
+    .pluginflowz-card-note {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: var(--background-secondary);
+        border-radius: 4px;
+    }
+
+    .note-content {
+        font-size: 0.9em;
+        line-height: 1.4;
+        white-space: pre-wrap;
+    }
+
     /* ===== Modal ===== */
 
-    .modal-container.pluginflowz-modal .modal {
+    .pluginflowz-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .pluginflowz-modal .modal {
         width: calc(100vw - 200px);
         height: calc(100vh - 100px);
         max-width: calc(100vw - 200px);
         max-height: calc(100vh - 100px);
+        background-color: var(--background-primary);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .modal-container.pluginflowz-modal .modal-content {
+    .pluginflowz-modal .modal-content {
         height: 100%;
+        padding: 20px;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
+        gap: 16px;
+        overflow-y: auto;
+    }
+
+    .modal-button-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    /* ===== Form Elements ===== */
+    .modal input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--background-modifier-border);
+        border-radius: 4px;
+        background-color: var(--background-primary);
+        color: var(--text-normal);
+    }
+
+    .modal button {
+        padding: 6px 12px;
+        border-radius: 4px;
+        border: 1px solid var(--background-modifier-border);
+        background-color: var(--background-primary);
+        color: var(--text-normal);
+        cursor: pointer;
+    }
+
+    .modal button.mod-cta {
+        background-color: var(--interactive-accent);
+        color: var(--text-on-accent);
+        border: none;
     }
 
     /* ===== Dashboard ===== */
@@ -307,8 +384,29 @@ styleEl.textContent = `
         background-color: var(--background-modifier-border);
         color: var(--text-normal);
         transition: all 0.2s ease;
+    }
+
+    .pluginflowz-tag-removable {
         cursor: pointer;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        padding-right: 4px;
+    }
+
+    .pluginflowz-tag-removable:hover {
+        background-color: var(--background-modifier-error-hover);
+        color: var(--text-on-accent);
+    }
+
+    .pluginflowz-tag-remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        transition: all 0.2s ease;
     }
 
     .pluginflowz-tag:hover,
@@ -322,6 +420,11 @@ styleEl.textContent = `
     .pluginflowz-filter-tag.pluginflowz-tag-status {
         font-weight: 600;
         letter-spacing: 0.3px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8em;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
         
     .pluginflowz-tag-status.exploring,
@@ -583,6 +686,231 @@ styleEl.textContent = `
 
     .tri-state-toggle:hover .tri-state-slider.right {
         background-color: var(--background-modifier-success-hover);
+    }
+
+    .pluginflowz-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(var(--background-primary-rgb), 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+    }
+
+    .pluginflowz-loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-accent);
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--background-modifier-border);
+        border-top: 4px solid var(--text-accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .pluginflowz-no-plugins {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 32px;
+    }
+
+    .pluginflowz-search-input:disabled,
+    .pluginflowz-view-button:disabled,
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* ===== Card Actions ===== */
+    .pluginflowz-card-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pluginflowz-more-button {
+        background: none;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: color 0.2s ease;
+    }
+
+    .pluginflowz-more-button:hover {
+        color: var(--text-normal);
+    }
+
+    .more-vertical {
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .pluginflowz-add-tag {
+        background: none;
+        border: 1px solid var(--background-modifier-border);
+        border-radius: 16px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s ease;
+    }
+
+    .pluginflowz-add-tag:hover {
+        background-color: var(--background-modifier-hover);
+        color: var(--text-normal);
+    }
+
+    /* ===== Plugin List Item ===== */
+    .pluginflowz-plugin-rating {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pluginflowz-plugin-status-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ===== Toggle Button ===== */
+    .pluginflowz-toggle-button {
+        position: relative;
+        width: 36px;
+        height: 20px;
+        border-radius: 10px;
+        background-color: var(--background-modifier-border);
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        padding: 2px;
+    }
+
+    .pluginflowz-toggle-button.active {
+        background-color: var(--interactive-accent);
+    }
+
+    .toggle-slider {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        background-color: var(--background-primary);
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+    }
+
+    .active .toggle-slider {
+        transform: translateX(16px);
+    }
+
+    /* ===== Rating Control ===== */
+    .rating-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stars {
+        display: flex;
+        gap: 2px;
+    }
+
+    .star {
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: color 0.2s ease;
+    }
+
+    .star.filled {
+        color: var(--text-accent);
+    }
+
+    .reset {
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 0.8em;
+    }
+
+    .reset:hover {
+        color: var(--text-normal);
+    }
+
+    /* ===== Options Menu ===== */
+    .pluginflowz-options-menu {
+        position: absolute;
+        background-color: var(--background-primary);
+        border: 1px solid var(--background-modifier-border);
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        min-width: 200px;
+    }
+
+    .pluginflowz-options-list {
+        display: flex;
+        flex-direction: column;
+        padding: 4px;
+    }
+
+    .pluginflowz-option-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        color: var(--text-normal);
+        border-radius: 4px;
+    }
+
+    .pluginflowz-option-item:hover {
+        background-color: var(--background-modifier-hover);
+    }
+
+    .pluginflowz-option-item.danger {
+        color: var(--text-error);
+    }
+
+    .pluginflowz-option-item.danger:hover {
+        background-color: var(--background-modifier-error);
+    }
+
+    .pluginflowz-option-separator {
+        height: 1px;
+        background-color: var(--background-modifier-border);
+        margin: 4px 0;
+    }
+
+    .option-icon {
+        font-size: 1.2em;
+        width: 24px;
+        text-align: center;
     }
 `;
 

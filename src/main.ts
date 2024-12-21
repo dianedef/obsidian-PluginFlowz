@@ -3,6 +3,7 @@ import { TViewMode } from './types';
 import { registerStyles } from './RegisterStyles';
 import { Settings, SettingsTab, DEFAULT_SETTINGS } from './Settings';
 import { useTranslations } from './composables/useTranslations';
+import { usePluginManager } from './composables/usePluginManager';
 import { Hotkeys } from './Hotkeys';
 import { DashboardView } from './Dashboard';
 import { useViewMode } from './composables/useViewMode';
@@ -15,6 +16,7 @@ export default class PluginFlowz extends Plugin {
    private dashboard!: DashboardView;
    private vueApp: ReturnType<typeof createApp> | null = null;
    private viewMode = useViewMode();
+   private pluginManager = usePluginManager();
 
    private initializeView() {
       this.registerView(
@@ -32,6 +34,7 @@ export default class PluginFlowz extends Plugin {
 
       // Initialisation
       Settings.initialize(this);
+      this.pluginManager.initializeManager(this);
       console.log('🔌 PluginFlowz - Initialisation terminée', this.app);
       console.log('🔥 Hot reload test - ' + new Date().toLocaleTimeString());
 
@@ -42,14 +45,13 @@ export default class PluginFlowz extends Plugin {
       await Settings.loadSettings();
 
       // Initialiser le gestionnaire de vue
-      const viewMode = useViewMode();
-      await viewMode.initializeViewMode(this);
+      await this.viewMode.initializeViewMode(this);
 
       // Initialiser les hotkeys
       this.hotkeys = new Hotkeys(
          this,
          Settings,
-         viewMode
+         this.viewMode
       );
       this.hotkeys.registerHotkeys();
       
@@ -167,7 +169,18 @@ export default class PluginFlowz extends Plugin {
          this.vueApp = null;
       }
 
+      // Fermer la modale si elle existe
+      if (this.viewMode && this.viewMode.getCurrentMode() === 'popup') {
+         const modal = (this.viewMode as any).state?.value?.modal;
+         if (modal) {
+            modal.close();
+         }
+      }
+
       // Détacher les vues
       this.app.workspace.detachLeavesOfType("pluginflowz-view");
+
+      // Nettoyer les commandes
+      (this.app as any).commands?.removeCommands?.(this.manifest.id);
    }
 }

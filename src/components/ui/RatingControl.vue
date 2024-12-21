@@ -42,37 +42,4 @@ const hoverRating = ref(0)
 const updateRating = (value: number) => {
   emit('update:modelValue', value)
 }
-</script>
-
-<style scoped>
-.rating-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stars {
-  display: flex;
-  gap: 2px;
-}
-
-.star {
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: color 0.2s ease;
-}
-
-.star.filled {
-  color: var(--text-accent);
-}
-
-.reset {
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 0.8em;
-}
-
-.reset:hover {
-  color: var(--text-normal);
-}
-</style> 
+</script> 

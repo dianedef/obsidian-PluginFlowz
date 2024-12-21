@@ -10,6 +10,19 @@ interface Translations {
 
 const translations: Record<string, Record<string, string>> = {
   fr: {
+    // Dashboard
+    'dashboard.title': 'Tableau de bord des plugins',
+    'dashboard.viewModeTab': 'Ouvrir en onglet',
+    'dashboard.viewModeSidebar': 'Ouvrir en barre latérale',
+    'dashboard.viewModePopup': 'Ouvrir en popup',
+    'dashboard.loading': 'Chargement...',
+    'dashboard.searchPlaceholder': 'Rechercher des plugins...',
+    'dashboard.listView': 'Vue liste',
+    'dashboard.cardView': 'Vue cartes',
+    'dashboard.noPlugins': 'Aucun plugin trouvé',
+    'dashboard.showNotes': 'Avec notes',
+    'dashboard.hideNotes': 'Sans notes',
+
     // Paramètres généraux
     'settings.defaultViewMode': 'Mode d\'affichage par défaut',
     'settings.defaultViewModeDesc': 'Choisissez comment le tableau de bord s\'affiche par défaut',
@@ -66,6 +79,7 @@ const translations: Record<string, Record<string, string>> = {
     'settings.plugins.status.exploring': 'En exploration',
     'settings.plugins.status.active': 'Actif',
     'settings.plugins.status.inactive': 'Inactif',
+    'settings.plugins.status.ignoring': 'Ignoré',
 
     // Options des plugins
     'settings.plugins.options.status': 'Statut',
@@ -89,6 +103,9 @@ const translations: Record<string, Record<string, string>> = {
     'settings.plugins.tags.add': 'Ajouter un tag',
     'settings.plugins.tags.added': 'Tag {tag} ajouté',
     'settings.plugins.tags.removed': 'Tag {tag} supprimé',
+    'settings.plugins.add.name': 'Ajouter un tag',
+    'settings.plugins.add.placeholder': 'Nom du tag',
+    'settings.plugins.add.success': 'Ajouter',
 
     // Suppression
     'settings.plugins.delete': 'Supprimer',
@@ -114,6 +131,20 @@ const translations: Record<string, Record<string, string>> = {
     'errors.activateBaseGroup': 'Erreur lors de l\'activation du groupe Base'
   },
   en: {
+    // Dashboard
+    'dashboard.title': 'Plugin Dashboard',
+    'dashboard.viewModeTab': 'Open in tab',
+    'dashboard.viewModeSidebar': 'Open in sidebar',
+    'dashboard.viewModePopup': 'Open in popup',
+    'dashboard.loading': 'Loading...',
+    'dashboard.searchPlaceholder': 'Search plugins...',
+    'dashboard.listView': 'List view',
+    'dashboard.cardView': 'Card view',
+    'dashboard.noPlugins': 'No plugins found',
+    'dashboard.showNotes': 'With notes',
+    'dashboard.hideNotes': 'Without notes',
+
+
     // General Settings
     'settings.defaultViewMode': 'Default View Mode',
     'settings.defaultViewModeDesc': 'Choose how the dashboard will display by default',
@@ -170,6 +201,7 @@ const translations: Record<string, Record<string, string>> = {
     'settings.plugins.status.exploring': 'Exploring',
     'settings.plugins.status.active': 'Active',
     'settings.plugins.status.inactive': 'Inactive',
+    'settings.plugins.status.ignoring': 'Ignoring',
 
     // Plugin Options
     'settings.plugins.options.status': 'Status',
@@ -193,6 +225,9 @@ const translations: Record<string, Record<string, string>> = {
     'settings.plugins.tags.add': 'Add tag',
     'settings.plugins.tags.added': 'Tag {tag} added',
     'settings.plugins.tags.removed': 'Tag {tag} removed',
+    'settings.plugins.add.name': 'Add tag',
+    'settings.plugins.add.placeholder': 'Tag name',
+    'settings.plugins.add.success': 'Add',
 
     // Delete
     'settings.plugins.delete': 'Delete',
