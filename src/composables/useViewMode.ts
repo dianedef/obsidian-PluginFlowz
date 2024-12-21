@@ -6,9 +6,9 @@ import { createApp } from 'vue'
 import Dashboard from '../components/Dashboard.vue'
 
 class CustomModal {
-    private vueApp: ReturnType<typeof createApp> | null = null;
-    private container: HTMLDivElement;
-    private modalContent: HTMLDivElement;
+    public vueApp: ReturnType<typeof createApp> | null = null;
+    public container: HTMLDivElement;
+    public modalContent: HTMLDivElement;
     private app: Plugin['app'];
 
     constructor(plugin: Plugin) {
@@ -139,7 +139,7 @@ class CustomModal {
         });
     }
 
-    open() {
+    public open() {
         // Monter l'application Vue
         this.vueApp = createApp(Dashboard);
         this.vueApp.mount(this.modalContent.querySelector('.modal-vue-container')!);
@@ -148,7 +148,7 @@ class CustomModal {
         document.body.appendChild(this.container);
     }
 
-    close() {
+    public close() {
         // Démonter Vue
         if (this.vueApp) {
             this.vueApp.unmount();
@@ -217,30 +217,18 @@ export function useViewMode() {
             // Créer la nouvelle vue selon le mode
             switch (mode) {
                 case 'tab':
-                    leaf = workspace.getLeaf('tab')
-                    break
+                    // Toujours créer un nouvel onglet dans la zone principale
+                    leaf = workspace.getLeaf('tab', 'vertical');
+                    break;
                     
                 case 'sidebar':
-                    leaf = workspace.getRightLeaf(false)
-                    break
+                    leaf = workspace.getRightLeaf(false);
+                    break;
                     
                 case 'popup':
                     // Créer et ouvrir la modale
                     const modal = new CustomModal(state.value.plugin)
                     state.value.modal = modal
-                    
-                    // Ajouter un gestionnaire pour nettoyer l'état quand la modale est fermée
-                    const originalOnClose = modal.close.bind(modal)
-                    modal.close = () => {
-                        if (modal.vueApp) {
-                            modal.vueApp.unmount();
-                            modal.vueApp = null;
-                        }
-                        modal.modalContent.empty();
-                        state.value.modal = null;
-                        originalOnClose();
-                    }
-                    
                     modal.open()
                     break
                     
@@ -248,11 +236,7 @@ export function useViewMode() {
                     throw new Error(`[PluginFlowz] Mode non supporté: ${mode}`)
             }
 
-            if (mode !== 'popup' && !leaf) {
-                throw new Error('[PluginFlowz] Impossible de créer la vue')
-            }
-
-            if (leaf) {
+            if (mode !== 'popup' && leaf) {
                 // Définir la vue
                 await leaf.setViewState({
                     type: "pluginflowz-view",
