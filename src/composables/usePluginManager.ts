@@ -99,7 +99,7 @@ export function usePluginManager() {
             // Mettre à jour le statut d'activation du plugin
             if (pluginData.activate) {
                 try {
-                    await plugin.value.app.plugins.enablePlugin(pluginData.id)
+                    await (plugin.value.app as any).plugins.enablePluginAndSave(pluginData.id)
                     new Notice(`Plugin ${pluginData.title} activé avec succès`)
                 } catch (error) {
                     console.error(`Erreur lors de l'activation du plugin ${pluginData.title}:`, error)
@@ -108,7 +108,7 @@ export function usePluginManager() {
                 }
             } else {
                 try {
-                    await plugin.value.app.plugins.disablePlugin(pluginData.id)
+                    await (plugin.value.app as any).plugins.disablePluginAndSave(pluginData.id)
                     new Notice(`Plugin ${pluginData.title} désactivé avec succès`)
                 } catch (error) {
                     console.error(`Erreur lors de la désactivation du plugin ${pluginData.title}:`, error)

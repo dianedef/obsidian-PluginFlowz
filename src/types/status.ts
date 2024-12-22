@@ -1,0 +1,1 @@
+export type TPluginStatus = 'exploring' | 'active' | 'inactive' | 'ignoring' 

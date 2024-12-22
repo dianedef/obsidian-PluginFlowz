@@ -5,7 +5,7 @@
     @click="toggle"
     :title="t(computedValue ? 'settings.plugins.deactivate.tooltip' : 'settings.plugins.activate.tooltip')"
   >
-    <div class="toggle-slider" />
+    <div class="pluginflowz-toggle-slider" />
   </button>
 </template>
 

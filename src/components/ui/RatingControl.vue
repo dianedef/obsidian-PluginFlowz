@@ -1,21 +1,21 @@
 <template>
-  <div class="rating-control">
+  <div class="pluginflowz-rating-control">
     <span 
       v-if="showReset" 
-      class="reset" 
+      class="pluginflowz-reset" 
       @click="updateRating(0)"
       :title="t('settings.plugins.rating.reset')"
     >
       ×
     </span>
     <div 
-      class="stars"
+      class="pluginflowz-stars"
       :title="t('settings.plugins.rating.tooltip')"
     >
       <span
         v-for="star in 5"
         :key="star"
-        class="star"
+        class="pluginflowz-star"
         :class="{ 'filled': star <= modelValue }"
         @click="updateRating(star)"
         @mouseover="hoverRating = star"

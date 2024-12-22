@@ -128,7 +128,16 @@ const translations: Record<string, Record<string, string>> = {
     'errors.openDashboard': 'Erreur lors de l\'ouverture du tableau de bord',
     'errors.activateTechGroup': 'Erreur lors de l\'activation du groupe Tech',
     'errors.activateOutilsGroup': 'Erreur lors de l\'activation du groupe Outils',
-    'errors.activateBaseGroup': 'Erreur lors de l\'activation du groupe Base'
+    'errors.activateBaseGroup': 'Erreur lors de l\'activation du groupe Base',
+
+    // Options du menu contextuel
+    'settings.plugins.options.openInObsidian': 'Ouvrir la note',
+    'settings.plugins.options.openOnGithub': 'Voir sur GitHub',
+    'settings.plugins.options.copyId': 'Copier l\'ID',
+    'settings.plugins.options.deleteConfirm': 'Êtes-vous sûr de vouloir supprimer ce plugin ?',
+    'settings.plugins.delete.button': 'Supprimer',
+    'settings.plugins.delete.confirmMessage': 'Êtes-vous sûr de vouloir supprimer {title} ?',
+    'settings.plugins.options.copySuccess': 'ID copié avec succès',
   },
   en: {
     // Dashboard
@@ -250,7 +259,16 @@ const translations: Record<string, Record<string, string>> = {
     'errors.openDashboard': 'Error opening dashboard',
     'errors.activateTechGroup': 'Error activating Tech group',
     'errors.activateOutilsGroup': 'Error activating Tools group',
-    'errors.activateBaseGroup': 'Error activating Base group'
+    'errors.activateBaseGroup': 'Error activating Base group',
+
+    // Context menu options
+    'settings.plugins.options.openInObsidian': 'Open note',
+    'settings.plugins.options.openOnGithub': 'View on GitHub',
+    'settings.plugins.options.copyId': 'Copy ID',
+    'settings.plugins.options.deleteConfirm': 'Are you sure you want to delete this plugin?',
+    'settings.plugins.delete.button': 'Delete',
+    'settings.plugins.delete.confirmMessage': 'Are you sure you want to delete {title}?',
+    'settings.plugins.options.copySuccess': 'ID copied successfully',
   }
 }
 

@@ -3,66 +3,46 @@ const styleEl = document.createElement('style');
 styleEl.id = 'pluginflowz-styles';
 styleEl.textContent = `
 
+    /* ===== Header & Navigation ===== */
     .pluginflowz-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
     }
 
     .pluginflowz-header-buttons {
-    display: flex;
-    gap: 0.5rem;
+        display: flex;
+        gap: 0.5rem;
     }
 
     .pluginflowz-view-button {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
     }
 
-    /* ===== No Plugins ===== */
+    /* ===== Messages & Notifications ===== */
     .pluginflowz-no-plugins,
     .pluginflowz-no-results {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-muted);
-    width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px;
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        width: 100%;
     }
 
-    .pluginflowz-plugin-note {
-        margin-top: 1rem;
-        padding: 1rem;
-        background-color: var(--background-secondary);
-        border-radius: 4px;
-        margin-left: 1rem;
-    }
-
-    .note-content {
-        font-size: 0.9em;
-        line-height: 1.4;
-        white-space: pre-wrap;
-    }
-
-    .pluginflowz-card-note {
-        margin-top: 1rem;
-        padding: 1rem;
-        background-color: var(--background-secondary);
-        border-radius: 4px;
-    }
-
-    .note-content {
+    /* ===== Notes Display ===== */
+    .pluginflowz-note-content {
         font-size: 0.9em;
         line-height: 1.4;
         white-space: pre-wrap;
     }
 
     /* ===== Modal ===== */
-
     .pluginflowz-modal {
         position: fixed;
         top: 0;
@@ -76,17 +56,7 @@ styleEl.textContent = `
         z-index: 1000;
     }
 
-    .pluginflowz-modal .modal {
-        width: calc(100vw - 200px);
-        height: calc(100vh - 100px);
-        max-width: calc(100vw - 200px);
-        max-height: calc(100vh - 100px);
-        background-color: var(--background-primary);
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .pluginflowz-modal .modal-content {
+    .pluginflowz-modal-content {
         height: 100%;
         padding: 20px;
         display: flex;
@@ -95,18 +65,17 @@ styleEl.textContent = `
         overflow-y: auto;
     }
 
-    .modal-button-container {
+    .pluginflowz-modal-button-container {
         display: flex;
         justify-content: flex-end;
         gap: 8px;
     }
 
-    /* Suppression du ::before pour la croix de la modale */
-    .modal-close-button::before {
+    .pluginflowz-modal-close-button::before {
         content: none;
     }
 
-    .modal-close-button {
+    .pluginflowz-modal-close-button {
         position: absolute;
         top: 8px;
         right: 8px;
@@ -120,13 +89,13 @@ styleEl.textContent = `
         border-radius: 4px;
     }
 
-    .modal-close-button:hover {
+    .pluginflowz-modal-close-button:hover {
         color: var(--text-error);
         background: var(--background-modifier-error);
     }
 
     /* ===== Form Elements ===== */
-    .modal input {
+    .pluginflowz-modal input {
         width: 100%;
         padding: 8px;
         border: 1px solid var(--background-modifier-border);
@@ -135,7 +104,7 @@ styleEl.textContent = `
         color: var(--text-normal);
     }
 
-    .modal button {
+    .pluginflowz-modal button {
         padding: 6px 12px;
         border-radius: 4px;
         border: 1px solid var(--background-modifier-border);
@@ -144,13 +113,13 @@ styleEl.textContent = `
         cursor: pointer;
     }
 
-    .modal button.mod-cta {
+    .pluginflowz-modal button.mod-cta {
         background-color: var(--interactive-accent);
         color: var(--text-on-accent);
         border: none;
     }
 
-    /* ===== Dashboard ===== */
+    /* ===== Layout & Container ===== */
     .pluginflowz-dashboard-container {
         padding: 20px;
         flex: 1;
@@ -158,13 +127,32 @@ styleEl.textContent = `
     }
 
     /* En mode popup */
-    .modal-container .pluginflowz-dashboard-container {
+    .pluginflowz-modal-container .pluginflowz-dashboard-container {
         height: 100%;
     }
 
     /* En mode tab/sidebar */
-    .workspace-leaf-content[data-type="pluginflowz-view"] .pluginflowz-dashboard-container {
+    .pluginflowz-workspace-leaf-content[data-type="pluginflowz-view"] .pluginflowz-dashboard-container {
         height: 100%;
+    }
+
+    /* ===== Search Input ===== */
+    .pluginflowz-search {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .pluginflowz-search-input {
+        width: 100%;
+        height: 32px;
+        padding: 4px 12px;
+        border-radius: 16px;
+        border: 1px solid var(--background-modifier-border);
+        background-color: var(--background-primary);
+        color: var(--text-normal);
+        font-size: 14px;
+        transition: all 0.2s ease;
     }
 
     /* ===== Plugins List ===== */
@@ -181,7 +169,7 @@ styleEl.textContent = `
         border-radius: 5px;
     }
 
-    /* Nouvelle structure de la vue liste */
+    /* ===== Plugin Item Structure ===== */
     .pluginflowz-plugin-top-row {
         display: flex;
         justify-content: space-between;
@@ -218,13 +206,14 @@ styleEl.textContent = `
         justify-content: flex-end;
     }
 
+    /* ===== Plugin Description ===== */
     .pluginflowz-plugin-description {
         color: var(--text-muted);
         font-size: 14px;
         margin: 8px 0;
     }
 
-    /* Mode Cards */
+    /* ===== Cards Grid Layout ===== */
     .pluginflowz-cards-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -241,6 +230,7 @@ styleEl.textContent = `
         gap: 10px;
     }
 
+    /* ===== Card Structure ===== */
     .pluginflowz-card-header {
         display: flex;
         justify-content: space-between;
@@ -258,7 +248,7 @@ styleEl.textContent = `
         align-items: center;
     }
 
-    /* Header avec toggle */
+    /* ===== Header Settings ===== */
     .pluginflowz-header {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -286,6 +276,7 @@ styleEl.textContent = `
         background-color: var(--background-modifier-hover);
     }
 
+    /* ===== View Button ===== */
     .pluginflowz-view-button {
         background-color: var(--interactive-accent);
         color: var(--text-on-accent);
@@ -303,60 +294,7 @@ styleEl.textContent = `
         background-color: var(--interactive-accent-hover);
     }
 
-    .pluginflowz-rating-container,
-    .pluginflowz-card-rating {
-        margin-top: 10px;
-    }
-
-    /* ===== Card Header ===== */
-
-    .pluginflowz-card-header .setting-item-control {
-        cursor: pointer;
-    }
-
-    /* Style pour la checkbox */
-    .checkbox-container {
-        cursor: pointer;
-    }
-    
-    .checkbox-container input[type="checkbox"] {
-        cursor: pointer;
-    }
-
-    /* Style pour le bouton de paramètres supplémentaires */
-    .extra-setting-button {
-        cursor: pointer;
-        opacity: 0.7;
-        transition: opacity 0.2s ease;
-    }
-
-    .extra-setting-button:hover {
-        opacity: 1;
-    }
-
-    /* ===== Rating ===== */
-    
-    .pluginflowz-rating-container .setting-item,
-    .pluginflowz-card-rating .setting-item {
-        border: none;
-        padding: 0;
-    }
-
-    .pluginflowz-card-rating .setting-item-name {
-        font-size: 16px;
-        padding: 0;
-    }
-
-    .pluginflowz-card-header .setting-item {
-        border: none;
-        padding: 0;
-    }
-
-    /* Ajout du style pour le toggle */
-    .pluginflowz-card-header .setting-item-control {
-        cursor: pointer;
-    }
-
+    /* ===== Progress Container ===== */
     .pluginflowz-progress {
         width: 100%;
         height: 4px;
@@ -370,61 +308,6 @@ styleEl.textContent = `
         height: 100%;
         background-color: var(--interactive-accent);
         transition: width 0.2s ease;
-    }
-
-    .pluginflowz-rating-text {
-        font-size: 12px;
-        color: var(--text-muted);
-    }
-
-    .pluginflowz-card-rating {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 8px;
-    }
-
-    .progress-container {
-        flex: 1;
-        height: 4px;
-        background-color: var(--background-modifier-border);
-        border-radius: 2px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        padding: 8px 0;
-        margin: -8px 0;
-    }
-
-    .progress-container:hover {
-        height: 8px;
-        background-color: var(--background-modifier-border-hover);
-    }
-
-    .progress-bar {
-        height: 100%;
-        background-color: var(--interactive-accent);
-        transition: all 0.2s ease;
-    }
-
-    .pluginflowz-rating-value {
-        font-size: 14px;
-        color: var(--text-muted);
-        min-width: 32px;
-        text-align: right;
-    }
-
-    .pluginflowz-rating-text,
-    .pluginflowz-rating-value {
-        transition: all 0.2s ease;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    .pluginflowz-rating-text:hover,
-    .pluginflowz-rating-value:hover {
-        transform: scale(1.1);
-        color: var(--interactive-accent);
     }
 
     /* ===== Tags ===== */
@@ -621,7 +504,7 @@ styleEl.textContent = `
         opacity: 1 !important;
     }
 
-    .progress-container {
+    .pluginflowz-progress-container {
         flex: 1;
         height: 4px;
         background-color: var(--background-modifier-border);
@@ -631,7 +514,7 @@ styleEl.textContent = `
         transition: all 0.2s ease;
     }
 
-    .progress-container:hover {
+    .pluginflowz-progress-container:hover {
         height: 8px;
     }
 
@@ -671,7 +554,7 @@ styleEl.textContent = `
     }
 
     /* ===== Tri-State Toggle ===== */
-    .tri-state-toggle {
+    .pluginflowz-tri-state-toggle {
         position: relative;
         width: 80px;
         height: 28px;
@@ -683,7 +566,7 @@ styleEl.textContent = `
         padding: 2px;
     }
 
-    .tri-state-slider {
+    .pluginflowz-tri-state-slider {
         position: absolute;
         width: 24px;
         height: 24px;
@@ -692,38 +575,37 @@ styleEl.textContent = `
         transition: transform 0.2s ease;
     }
 
-    .tri-state-slider.left {
+    .pluginflowz-tri-state-slider.left {
         transform: translateX(0);
         background-color: var(--background-modifier-error);
     }
 
-    .tri-state-slider.middle {
+    .pluginflowz-tri-state-slider.middle {
         transform: translateX(28px);
         background-color: var(--interactive-accent);
     }
 
-    .tri-state-slider.right {
+    .pluginflowz-tri-state-slider.right {
         transform: translateX(56px);
         background-color: var(--background-modifier-success);
     }
 
-    .tri-state-position {
-        width: 24px;
-        height: 24px;
-        z-index: 1;
-        cursor: pointer;
+    .pluginflowz-tri-state-position {
+        flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 1;
+        cursor: pointer;
         color: var(--text-muted);
         transition: color 0.2s ease;
     }
 
-    .tri-state-position:hover {
+    .pluginflowz-tri-state-position:hover {
         color: var(--text-normal);
     }
 
-    .tri-state-icon {
+    .pluginflowz-tri-state-icon {
         width: 16px;
         height: 16px;
         display: flex;
@@ -731,15 +613,15 @@ styleEl.textContent = `
         justify-content: center;
     }
 
-    .tri-state-toggle:hover .tri-state-slider.left {
+    .pluginflowz-tri-state-toggle:hover .pluginflowz-tri-state-slider.left {
         background-color: var(--background-modifier-error-hover);
     }
 
-    .tri-state-toggle:hover .tri-state-slider.middle {
+    .pluginflowz-tri-state-toggle:hover .pluginflowz-tri-state-slider.middle {
         background-color: var(--interactive-accent-hover);
     }
 
-    .tri-state-toggle:hover .tri-state-slider.right {
+    .pluginflowz-tri-state-toggle:hover .pluginflowz-tri-state-slider.right {
         background-color: var(--background-modifier-success-hover);
     }
 
@@ -764,7 +646,7 @@ styleEl.textContent = `
         color: var(--text-accent);
     }
 
-    .spinner {
+    .pluginflowz-spinner {
         width: 40px;
         height: 40px;
         border: 4px solid var(--background-modifier-border);
@@ -811,9 +693,12 @@ styleEl.textContent = `
         color: var(--text-normal);
     }
 
-    .more-vertical {
+    .pluginflowz-more-vertical {
         font-size: 18px;
         line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .pluginflowz-add-tag {
@@ -852,92 +737,68 @@ styleEl.textContent = `
     /* ===== Toggle Button ===== */
     .pluginflowz-toggle-button {
         position: relative;
-        width: 36px;
-        height: 20px;
-        border-radius: 10px;
+        width: 40px;
+        height: 24px;
+        border-radius: 12px;
         background-color: var(--background-modifier-border);
         border: none;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
         padding: 2px;
+        display: flex;
+        align-items: center;
     }
 
     .pluginflowz-toggle-button.active {
         background-color: var(--interactive-accent);
     }
 
-    .toggle-slider {
+    .pluginflowz-toggle-slider {
         position: absolute;
         top: 2px;
         left: 2px;
-        width: 16px;
-        height: 16px;
+        width: 20px;
+        height: 20px;
         background-color: var(--background-primary);
         border-radius: 50%;
         transition: transform 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    .active .toggle-slider {
+    .pluginflowz-toggle-button.active .pluginflowz-toggle-slider {
         transform: translateX(16px);
     }
 
-    /* ===== Rating Control ===== */
-    .rating-control {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    .pluginflowz-toggle-button:hover {
+        opacity: 0.85;
     }
 
-    .stars {
-        display: flex;
-        gap: 2px;
-    }
-
-    .star {
-        cursor: pointer;
-        color: var(--text-muted);
-        transition: color 0.2s ease;
-    }
-
-    .star.filled {
-        color: var(--text-accent);
-    }
-
-    .reset {
-        cursor: pointer;
-        color: var(--text-muted);
-        font-size: 1.2em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .reset:hover {
-        color: var(--text-selected);
+    .pluginflowz-toggle-button:hover .pluginflowz-toggle-slider {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     /* ===== Options Menu ===== */
     .pluginflowz-options-menu {
-        position: absolute;
+        position: fixed;
         background-color: var(--background-primary);
-        border: 1px solid var(--background-modifier-border);
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         min-width: 200px;
+        z-index: 9999;
+        padding: 8px;
     }
 
     .pluginflowz-options-list {
         display: flex;
         flex-direction: column;
-        padding: 4px;
+        gap: 4px;
     }
 
     .pluginflowz-option-item {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 8px;
+        padding: 8px 12px;
         border: none;
         background: none;
         width: 100%;
@@ -945,10 +806,12 @@ styleEl.textContent = `
         cursor: pointer;
         color: var(--text-normal);
         border-radius: 4px;
+        font-size: 14px;
+        transition: all 0.15s ease;
     }
 
     .pluginflowz-option-item:hover {
-        background-color: var(--background-modifier-hover);
+        background-color: var(--background-secondary);
     }
 
     .pluginflowz-option-item.danger {
@@ -957,6 +820,7 @@ styleEl.textContent = `
 
     .pluginflowz-option-item.danger:hover {
         background-color: var(--background-modifier-error);
+        color: var(--text-on-accent);
     }
 
     .pluginflowz-option-separator {
@@ -965,10 +829,80 @@ styleEl.textContent = `
         margin: 4px 0;
     }
 
-    .option-icon {
+    .pluginflowz-option-icon {
         font-size: 1.2em;
         width: 24px;
         text-align: center;
+    }
+
+    /* ===== Checkbox Controls ===== */
+    .pluginflowz-checkbox-container {
+        cursor: pointer;
+    }
+    
+    .pluginflowz-checkbox-container input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    /* ===== Settings Button ===== */
+    .pluginflowz-extra-setting-button {
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    .pluginflowz-extra-setting-button:hover {
+        opacity: 1;
+    }
+
+    /* ===== Rating Control ===== */
+    .pluginflowz-rating-control {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pluginflowz-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 2px;
+        z-index: 1;
+    }
+
+    .pluginflowz-star {
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s ease;
+        font-size: 16px;
+    }
+
+    .pluginflowz-star:hover,
+    .pluginflowz-star:hover ~ .pluginflowz-star {
+        transform: scale(1.2);
+        color: var(--text-accent);
+    }
+
+    .pluginflowz-star.filled {
+        color: var(--text-accent);
+    }
+
+    .pluginflowz-reset {
+        position: relative;
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 1.2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin-right: 4px;
+        z-index: 2;
+    }
+
+    .pluginflowz-reset:hover {
+        color: var(--text-error);
+        transform: scale(1.2);
     }
 `;
 

@@ -1,25 +1,25 @@
 <template>
-  <div class="tri-state-toggle">
+  <div class="pluginflowz-tri-state-toggle">
     <div 
-      class="tri-state-position"
+      class="pluginflowz-tri-state-position"
       @click="setState('left')"
     >
-      <div class="tri-state-icon">✕</div>
+      <div class="pluginflowz-tri-state-icon">✕</div>
     </div>
     <div 
-      class="tri-state-position"
+      class="pluginflowz-tri-state-position"
       @click="setState('middle')"
     >
-      <div class="tri-state-icon">~</div>
+      <div class="pluginflowz-tri-state-icon">~</div>
     </div>
     <div 
-      class="tri-state-position"
+      class="pluginflowz-tri-state-position"
       @click="setState('right')"
     >
-      <div class="tri-state-icon">✓</div>
+      <div class="pluginflowz-tri-state-icon">✓</div>
     </div>
     <div 
-      class="tri-state-slider"
+      class="pluginflowz-tri-state-slider"
       :class="currentState"
     />
   </div>

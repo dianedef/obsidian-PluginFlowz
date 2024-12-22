@@ -100,7 +100,7 @@ export default class PluginFlowz extends Plugin {
             this.hotkeys.registerHotkeys();
 
             // Ajouter l'icône dans la barre latérale
-            const ribbonIconEl = this.addRibbonIcon('layout', 'PluginFlowz', async () => {
+            const ribbonIconEl = this.addRibbonIcon('plug', 'PluginFlowz', async () => {
                 try {
                     await this.viewMode.setView('popup');
                     new Notice(this.translations.t('notices.success'));
@@ -137,15 +137,27 @@ export default class PluginFlowz extends Plugin {
                 const rect = ribbonIconEl.getBoundingClientRect();
                 menu.showAtPosition({ x: rect.left, y: rect.top - 10 });
 
-                // Fermer le menu quand la souris quitte l'icône
+                // Gérer la fermeture du menu quand la souris quitte soit l'icône soit le menu
                 const handleMouseLeave = (e: MouseEvent) => {
                     const target = e.relatedTarget as HTMLElement;
-                    if (!target?.closest('.menu')) {
+                    const menuEl = document.querySelector('.menu');
+                    
+                    // Si la souris ne va ni vers le menu ni vers l'icône
+                    if (!target?.closest('.menu') && !target?.closest('.side-dock-ribbon-action')) {
                         menu.hide();
                         ribbonIconEl.removeEventListener('mouseleave', handleMouseLeave);
+                        menuEl?.removeEventListener('mouseleave', handleMouseLeave);
                     }
                 };
+
+                // Ajouter les event listeners sur l'icône et le menu
                 ribbonIconEl.addEventListener('mouseleave', handleMouseLeave);
+                
+                // Attendre que le menu soit créé dans le DOM
+                setTimeout(() => {
+                    const menuEl = document.querySelector('.menu');
+                    menuEl?.addEventListener('mouseleave', handleMouseLeave);
+                }, 50);
             });
 
             // Ajouter l'onglet des paramètres
@@ -168,9 +180,13 @@ export default class PluginFlowz extends Plugin {
     private async loadApp(): Promise<void> {
         return new Promise((resolve) => {
             if (!this.app.workspace) {
-                setTimeout(() => this.loadApp().then(resolve), 100);
+                setTimeout(() => this.loadApp().then(resolve), 300);
             } else {
                 resolve();
+                console.log('App workspace', this.app.workspace);
+                console.log('App', this.app);
+                console.log('App plugins', this.app.plugins);
+                console.log('App plugins', this.app.plugins.plugins);
             }
         });
     }

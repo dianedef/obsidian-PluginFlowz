@@ -6,7 +6,7 @@
       class="pluginflowz-loading-overlay"
     >
       <div class="pluginflowz-loading-spinner">
-        <div class="spinner"></div>
+        <div class="pluginflowz-spinner"></div>
         <span>{{ t('dashboard.loading') }}</span>
       </div>
     </div>
@@ -83,6 +83,7 @@
       :show-notes="showNotes"
       @update="handlePluginUpdate"
       @delete="handlePluginDelete"
+      @open="openPluginNote"
       :disabled="isLoading"
     />
     <plugin-cards
@@ -91,6 +92,7 @@
       :show-notes="showNotes"
       @update="handlePluginUpdate"
       @delete="handlePluginDelete"
+      @open="openPluginNote"
       :disabled="isLoading"
     />
 
@@ -212,6 +214,7 @@ const handleGlobalToggle = async (state: 'left' | 'middle' | 'right') => {
             activate: newValue,
             status: [newValue ? 'active' as TPluginStatus : 'inactive' as TPluginStatus]
           }
+          // Utiliser le pluginManager pour gérer l'activation/désactivation
           await updatePluginNote(updatedPlugin)
           
           // Mettre à jour l'état dans la copie
@@ -348,5 +351,26 @@ onMounted(async () => {
 
 const toggleNotesDisplay = () => {
   showNotes.value = !showNotes.value
+}
+
+const openPluginNote = async (plugin: IPlugin) => {
+  try {
+    const settings = await Settings.loadSettings()
+    const filePath = `${settings.notesFolder}/${plugin.id}.md`
+    const pluginManager = getPluginManager()
+    if (!pluginManager) {
+      throw new Error('Plugin manager not initialized')
+    }
+    const file = pluginManager.app.vault.getAbstractFileByPath(filePath)
+    if (file) {
+      await pluginManager.app.workspace.getLeaf().openFile(file)
+      new Notice(t('settings.plugins.noteOpened'))
+    } else {
+      new Notice(t('settings.plugins.errors.noteNotFound'))
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'ouverture de la note:', error)
+    new Notice(t('settings.plugins.errors.openError'))
+  }
 }
 </script> 

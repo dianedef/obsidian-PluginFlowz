@@ -16,9 +16,9 @@
           />
           <button 
             class="pluginflowz-more-button"
-            @click="showOptions(plugin)"
+            @click="(event) => showOptions(plugin, event)"
           >
-            <span class="more-vertical">⋮</span>
+            <span class="pluginflowz-more-vertical">⋮</span>
           </button>
         </div>
       </div>
@@ -75,7 +75,7 @@
         v-if="showNotes && plugin.note"
         class="pluginflowz-card-note"
       >
-        <div class="note-content">
+        <div class="pluginflowz-note-content">
           {{ plugin.note }}
         </div>
       </div>
@@ -88,7 +88,7 @@
       @close="showAddTagModal = false"
     />
 
-    <!-- Ajouter le menu d'options -->
+    <!-- Menu d'options -->
     <options-menu
       v-if="showOptionsMenu"
       :plugin="selectedPluginForOptions"
@@ -105,6 +105,7 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, onMounted, onUnmounted } from 'vue'
 import type { IPlugin, TPluginStatus } from '../types'
+import { Notice } from 'obsidian'
 import StatusTag from './ui/StatusTag.vue'
 import Tag from './ui/Tag.vue'
 import ToggleButton from './ui/ToggleButton.vue'
@@ -120,6 +121,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update', plugin: IPlugin): void
+  (e: 'delete', plugin: IPlugin): void
+  (e: 'open', plugin: IPlugin): void
 }>()
 
 const { t } = useTranslations()
@@ -200,18 +203,43 @@ const updateRating = (plugin: IPlugin, rating: number) => {
   emit('update', { ...plugin, rating })
 }
 
-const showOptions = (plugin: IPlugin, event: MouseEvent) => {
-  // Calculer la position du menu
-  const button = event.currentTarget as HTMLElement
-  const rect = button.getBoundingClientRect()
-  
-  optionsMenuPosition.value = {
-    x: rect.right,
-    y: rect.bottom
+const showOptions = (plugin: IPlugin, event?: MouseEvent) => {
+  if (!event) {
+    optionsMenuPosition.value = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2
+    }
+  } else {
+    // Calculer la position du menu
+    const button = event.currentTarget as HTMLElement
+    const rect = button.getBoundingClientRect()
+    
+    // Dimensions approximatives du menu
+    const menuWidth = 200
+    const menuHeight = 180
+    
+    // Position initiale (légèrement décalée à gauche du bouton)
+    let x = rect.left - menuWidth - 5 // On place le menu à gauche du bouton avec un petit décalage
+    let y = rect.top
+    
+    // Si le menu sort à gauche, le placer à droite du bouton
+    if (x < 0) {
+      x = rect.right + 5 // On place le menu à droite du bouton avec un petit décalage
+    }
+    
+    // Vérifier si le menu dépasse en bas de la fenêtre
+    if (y + menuHeight > window.innerHeight) {
+      y = Math.max(0, window.innerHeight - menuHeight) // Aligner en bas de la fenêtre
+    }
+    
+    optionsMenuPosition.value = { x, y }
   }
   
   selectedPluginForOptions.value = plugin
   showOptionsMenu.value = true
+
+  // Empêcher la propagation de l'événement
+  event?.stopPropagation()
 }
 
 const openInObsidian = () => {
@@ -232,7 +260,8 @@ const openOnGithub = () => {
 const copyPluginId = () => {
   if (selectedPluginForOptions.value) {
     navigator.clipboard.writeText(selectedPluginForOptions.value.id)
-    // TODO: Afficher une notification de succès
+    // Afficher une notification de succès
+    new Notice(t('settings.plugins.options.copySuccess'))
   }
   showOptionsMenu.value = false
 }
@@ -245,10 +274,20 @@ const deletePlugin = async () => {
   }
   showOptionsMenu.value = false
 }
-</script> 
 
-<style scoped>
-.pluginflowz-card.editing-status {
-  outline: 2px solid var(--interactive-accent);
+// Ajouter un gestionnaire de clic global pour fermer le menu
+onMounted(() => {
+  document.addEventListener('click', handleGlobalClick)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleGlobalClick)
+})
+
+const handleGlobalClick = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.pluginflowz-options-menu') && !target.closest('.pluginflowz-more-button')) {
+    showOptionsMenu.value = false
+  }
 }
-</style> 
+</script> 
