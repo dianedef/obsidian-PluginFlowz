@@ -2,9 +2,10 @@
   <div class="pluginflowz-cards-grid">
     <div 
       v-for="plugin in plugins" 
-      :key="plugin.title"
+      :key="plugin.id"
       class="pluginflowz-card"
       :data-plugin-title="plugin.title"
+      @mouseleave="handleCardMouseLeave(plugin)"
     >
       <!-- Header avec titre et actions -->
       <div class="pluginflowz-card-header">
@@ -26,8 +27,11 @@
       <!-- Status sous le titre -->
       <div class="pluginflowz-card-status-container">
         <status-tag 
+          ref="statusTags"
           :status="plugin.status[0]" 
-          @click="cycleStatus(plugin)"
+          :parent-handles-leave="true"
+          @update="(newStatus) => handleStatusUpdate(plugin, newStatus)"
+          @interaction="handleStatusInteraction"
         />
       </div>
 
@@ -72,12 +76,10 @@
 
       <!-- Note du plugin -->
       <div 
-        v-if="showNotes && plugin.note"
-        class="pluginflowz-card-note"
+        v-if="showNotes"
+        class="pluginflowz-note-content"
       >
-        <div class="pluginflowz-note-content">
-          {{ plugin.note }}
-        </div>
+        {{ plugin.note }}
       </div>
     </div>
 
@@ -116,7 +118,7 @@ import OptionsMenu from './ui/OptionsMenu.vue'
 
 const props = defineProps<{
   plugins: IPlugin[]
-  showNotes?: boolean
+  showNotes: boolean
 }>()
 
 const emit = defineEmits<{
@@ -143,6 +145,9 @@ const handleToggle = async (plugin: IPlugin, value: boolean) => {
     const updatedPlugin = { 
       ...plugin, 
       activate: value,
+      // Si on active, le statut devient 'active'
+      // Si on désactive, le statut devient 'inactive'
+      // Les autres statuts (exploring, ignoring) ne sont pas touchés par le toggle
       status: [value ? 'active' as TPluginStatus : 'inactive' as TPluginStatus]
     }
     await emit('update', updatedPlugin)
@@ -153,13 +158,7 @@ const handleToggle = async (plugin: IPlugin, value: boolean) => {
   }
 }
 
-const cycleStatus = async (plugin: IPlugin) => {
-  const statuses: TPluginStatus[] = ['exploring', 'active', 'inactive', 'ignoring']
-  const currentIndex = statuses.indexOf(plugin.status[0] as TPluginStatus)
-  const nextIndex = (currentIndex + 1) % statuses.length
-  const newStatus = statuses[nextIndex]
-  
-  // Créer une copie du plugin avec le nouveau statut
+const handleStatusUpdate = (plugin: IPlugin, newStatus: TPluginStatus) => {
   const updatedPlugin = { 
     ...plugin, 
     status: [newStatus],
@@ -170,9 +169,7 @@ const cycleStatus = async (plugin: IPlugin) => {
              newStatus === 'inactive' ? false : 
              plugin.activate
   }
-
-  // Émettre la mise à jour
-  await emit('update', updatedPlugin)
+  emit('update', updatedPlugin)
 }
 
 const removeTag = (plugin: IPlugin, tagToRemove: string) => {
@@ -289,5 +286,30 @@ const handleGlobalClick = (event: MouseEvent) => {
   if (!target.closest('.pluginflowz-options-menu') && !target.closest('.pluginflowz-more-button')) {
     showOptionsMenu.value = false
   }
+}
+
+const statusTags = ref<any[]>([])
+const hasInteractedWithStatus = ref(false)
+
+// Méthode pour gérer l'interaction avec le statut
+const handleStatusInteraction = () => {
+  hasInteractedWithStatus.value = true
+}
+
+const handleCardMouseLeave = (plugin: IPlugin) => {
+  // Ne rien faire si l'utilisateur n'a pas interagi avec le statut
+  if (!hasInteractedWithStatus.value) return
+
+  // Trouver le StatusTag correspondant au plugin
+  const index = props.plugins.findIndex(p => p.id === plugin.id)
+  const statusTag = statusTags.value[index]
+  
+  if (statusTag?.hasChanged?.()) {
+    handleStatusUpdate(plugin, statusTag.getCurrentStatus())
+    statusTag.resetChanged()
+  }
+
+  // Réinitialiser le drapeau d'interaction
+  hasInteractedWithStatus.value = false
 }
 </script> 

@@ -1,25 +1,21 @@
 <template>
   <button 
     class="pluginflowz-toggle-button"
-    :class="{ active: computedValue }"
+    :class="{ active: value }"
     @click="toggle"
-    :title="t(computedValue ? 'settings.plugins.deactivate.tooltip' : 'settings.plugins.activate.tooltip')"
+    :title="t(value ? 'settings.plugins.deactivate.tooltip' : 'settings.plugins.activate.tooltip')"
   >
     <div class="pluginflowz-toggle-slider" />
   </button>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent } from 'vue'
 import { useTranslations } from '../../composables/useTranslations'
 
 export default defineComponent({
   name: 'ToggleButton',
   props: {
-    modelValue: {
-      type: Boolean,
-      default: undefined
-    },
     value: {
       type: Boolean,
       default: false
@@ -28,20 +24,13 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t } = useTranslations()
 
-    const computedValue = computed(() => {
-      return props.modelValue !== undefined ? props.modelValue : props.value
-    })
-
     const toggle = () => {
-      const newValue = !computedValue.value
-      emit('update:modelValue', newValue)
-      emit('update:value', newValue)
+      emit('update:value', !props.value)
     }
 
     return {
       t,
-      toggle,
-      computedValue
+      toggle
     }
   }
 })

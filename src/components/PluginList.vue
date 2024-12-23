@@ -2,8 +2,9 @@
   <div class="pluginflowz-plugins-list">
     <div 
       v-for="plugin in plugins" 
-      :key="plugin.title"
+      :key="plugin.id"
       class="pluginflowz-plugin-item"
+      @mouseleave="handleItemMouseLeave(plugin)"
     >
       <!-- Ligne du haut : titre à gauche et toggle à droite -->
       <div class="pluginflowz-plugin-top-row">
@@ -13,8 +14,8 @@
         
         <div class="pluginflowz-plugin-right">
           <ToggleButton
-            v-model="plugin.activate"
-            @update:modelValue="handleToggle(plugin, $event)"
+            :value="plugin.activate"
+            @update:value="handleToggle(plugin, $event)"
           />
         </div>
       </div>
@@ -23,8 +24,10 @@
       <div class="pluginflowz-plugin-bottom-row">
         <div class="pluginflowz-plugin-status-container">
           <status-tag 
+            ref="statusTags"
             :status="plugin.status[0]" 
-            @click="cycleStatus(plugin)"
+            :parent-handles-leave="true"
+            @update="(newStatus) => handleStatusUpdate(plugin, newStatus)"
           />
         </div>
         
@@ -65,12 +68,10 @@
 
       <!-- Note du plugin -->
       <div 
-        v-if="showNotes && plugin.note"
-        class="pluginflowz-plugin-note"
+        v-if="showNotes"
+        class="pluginflowz-note-content"
       >
-        <div class="note-content">
-          {{ plugin.note }}
-        </div>
+        {{ plugin.note }}
       </div>
     </div>
     
@@ -95,7 +96,7 @@ import { useTranslations } from '../composables/useTranslations'
 
 const props = defineProps<{
   plugins: IPlugin[]
-  showNotes?: boolean
+  showNotes: boolean
 }>()
 
 const emit = defineEmits<{
@@ -115,6 +116,9 @@ const handleToggle = async (plugin: IPlugin, value: boolean) => {
     const updatedPlugin = { 
       ...plugin, 
       activate: value,
+      // Si on active, le statut devient 'active'
+      // Si on désactive, le statut devient 'inactive'
+      // Les autres statuts (exploring, ignoring) ne sont pas touchés par le toggle
       status: [value ? 'active' as TPluginStatus : 'inactive' as TPluginStatus]
     }
     await emit('update', updatedPlugin)
@@ -125,11 +129,18 @@ const handleToggle = async (plugin: IPlugin, value: boolean) => {
   }
 }
 
-const cycleStatus = (plugin: IPlugin) => {
-  const statuses: TPluginStatus[] = ['exploring', 'active', 'inactive', 'ignoring']
-  const currentIndex = statuses.indexOf(plugin.status[0] as TPluginStatus)
-  const nextIndex = (currentIndex + 1) % statuses.length
-  emit('update', { ...plugin, status: [statuses[nextIndex]] })
+const handleStatusUpdate = (plugin: IPlugin, newStatus: TPluginStatus) => {
+  const updatedPlugin = { 
+    ...plugin, 
+    status: [newStatus],
+    // Si le nouveau statut est 'active', on active le plugin
+    // Si le nouveau statut est 'inactive', on désactive le plugin
+    // Pour les autres statuts, on garde l'état actuel
+    activate: newStatus === 'active' ? true : 
+             newStatus === 'inactive' ? false : 
+             plugin.activate
+  }
+  emit('update', updatedPlugin)
 }
 
 const removeTag = (plugin: IPlugin, tagToRemove: string) => {
@@ -158,5 +169,18 @@ const handleTagSubmit = (tag: string) => {
 
 const updateRating = (plugin: IPlugin, rating: number) => {
   emit('update', { ...plugin, rating })
+}
+
+const statusTags = ref<any[]>([])
+
+const handleItemMouseLeave = (plugin: IPlugin) => {
+  // Trouver le StatusTag correspondant au plugin
+  const index = plugins.findIndex(p => p.id === plugin.id)
+  const statusTag = statusTags.value[index]
+  
+  if (statusTag?.hasChanged?.()) {
+    handleStatusUpdate(plugin, statusTag.getCurrentStatus())
+    statusTag.resetChanged()
+  }
 }
 </script> 

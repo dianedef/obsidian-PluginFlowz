@@ -257,15 +257,15 @@ const handleGlobalToggle = async (state: 'left' | 'middle' | 'right') => {
 // Modifier handlePluginUpdate pour utiliser la réactivité de Vue
 const handlePluginUpdate = async (plugin: IPlugin) => {
   // Si le plugin est déjà en cours de mise à jour, ignorer
-  if (updatingPlugins.value.has(plugin.title)) {
-    console.log('Plugin déjà en cours de mise à jour:', plugin.title)
+  if (updatingPlugins.value.has(plugin.id)) {
+    console.log('Plugin déjà en cours de mise à jour:', plugin.id)
     return
   }
 
-  const index = plugins.value.findIndex(p => p.title === plugin.title)
+  const index = plugins.value.findIndex(p => p.id === plugin.id)
   if (index !== -1) {
     // Marquer le plugin comme en cours de mise à jour
-    updatingPlugins.value.add(plugin.title)
+    updatingPlugins.value.add(plugin.id)
     
     try {
       // Sauvegarder l'état précédent
@@ -291,7 +291,7 @@ const handlePluginUpdate = async (plugin: IPlugin) => {
       }
     } finally {
       // Retirer le plugin de la liste des mises à jour en cours
-      updatingPlugins.value.delete(plugin.title)
+      updatingPlugins.value.delete(plugin.id)
     }
   }
 }

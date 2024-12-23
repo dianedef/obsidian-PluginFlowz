@@ -36,10 +36,53 @@ styleEl.textContent = `
     }
 
     /* ===== Notes Display ===== */
+    .pluginflowz-card-note,
+    .pluginflowz-plugin-note {
+        background-color: var(--background-primary-alt);
+        margin: 12px -15px -15px -15px;
+        border-top: 1px solid var(--background-modifier-border);
+        animation: slideDown 0.3s ease-out;
+    }
+
     .pluginflowz-note-content {
+        background-color: var(--background-primary);
+        padding: 12px;
         font-size: 0.9em;
-        line-height: 1.4;
+        line-height: 1.6;
+        color: var(--text-normal);
         white-space: pre-wrap;
+        border: 1px solid var(--background-modifier-border);
+        border-radius: 4px;
+        animation: slideDown 0.3s ease-out;
+        transition: all 0.2s ease;
+    }
+
+    .pluginflowz-note-content.active {
+        border: 2px solid var(--interactive-accent);
+        background-color: var(--background-primary);
+    }
+
+    /* Style spécifique pour les notes dans les cartes */
+    .pluginflowz-card .pluginflowz-card-note {
+        border-radius: 0 0 8px 8px;
+    }
+
+    /* Style spécifique pour les notes dans la liste */
+    .pluginflowz-plugin-item .pluginflowz-plugin-note {
+        border-radius: 0 0 5px 5px;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            max-height: 500px;
+            transform: translateY(0);
+        }
     }
 
     /* ===== Modal ===== */
